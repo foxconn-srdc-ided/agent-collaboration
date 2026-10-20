@@ -46,12 +46,12 @@
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "produce",
-        "pending_role": "B",
+        "pending_action": "review",
+        "pending_role": "C",
         "review": "",
-        "sha": "",
+        "sha": "7261a38c1fa3f5b2a57f6caca6db7f2849186434",
         "stage": "B_C",
-        "status": "待補件"
+        "status": "待檢查"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -112,7 +112,8 @@
       "C:8ce6a4bc-462c-41fe-a8a8-b084379a53fe",
       "B:e46d7dc2-ef04-4904-bef9-6bf6d90a3731",
       "B:7fe2fd61-1714-4654-9bc2-16fc114d2eac",
-      "B:5e16266c-55e0-4612-b997-8eb518fb07c3"
+      "B:5e16266c-55e0-4612-b997-8eb518fb07c3",
+      "B:5bd8ba1f-c009-4652-84ff-5511f34e4ca5"
     ],
     "stage": "B_C",
     "stopped": ""
