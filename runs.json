@@ -8,23 +8,24 @@
     "handoffs": {
       "A_B": {
         "agreed": [
-          "B"
+          "B",
+          "A"
         ],
         "agreement": "交付範圍：Python 標準函式庫 CSV 統計 CLI 工具，處理包含 category、amount 欄位的 CSV 檔案，輸出 JSON 格式的統計結果。\n\n驗收條件：\n1. 正常運作：輸入有效 CSV 檔案，正確計算總筆數、總金額、分類統計。\n2. 負金額處理：支援負數金額計算，並正確累加至總金額與分類金額。\n3. 空白分類處理：將空白分類歸類為 'UNKNOWN'。\n4. 錯誤處理：\n   - 只有標頭：返回空結果，輸出為 {\"total_count\": 0, \"total_amount\": \"0.00\", \"category_stats\": {}}。\n   - 缺欄位：拋出 FieldError 異常，CLI 輸出錯誤訊息至 stderr，並以非零退出碼退出。\n   - 非法金額：拋出 ValueError 異常，CLI 輸出錯誤訊息至 stderr，並以非零退出碼退出。\n\n依據資料：\n- category 欄位為文字型態。\n- amount 欄位為數值型態，使用 Decimal 類型進行運算，精確到分（2位小數）。\n- 輸出格式為 JSON，包含以下鍵值：\n  - total_count: int\n  - total_amount: str（保留兩位小數的字串，例如 \"250.25\"），運算仍使用 Decimal\n  - category_stats: dict，鍵為分類名稱，值為包含 count 和 amount 的物件，其中 amount 同樣為保留兩位小數的字串",
         "agreement_version": 3,
         "amendments": 2,
-        "attempt": 2,
+        "attempt": 3,
         "blocked_action": "",
         "blocked_role": "",
         "issue": 6,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "agree",
+        "pending_action": "produce",
         "pending_role": "A",
         "review": "",
         "sha": "da3af81b6de6256f61caa7e2f1ec6b749c873526",
         "stage": "A_B",
-        "status": "協議中"
+        "status": "執行中"
       },
       "B_C": {
         "agreed": [],
@@ -82,7 +83,8 @@
       "A:0d1db4a3-943e-4a7f-a7eb-eb03b5abc2bb",
       "B:bda89add-e5fd-401e-b988-42b2e982d84e",
       "A:8a965f94-d47a-4be2-8f26-68f8b6eac602",
-      "B:52c86bcf-1928-4e06-a405-6aa4c9f4e12f"
+      "B:52c86bcf-1928-4e06-a405-6aa4c9f4e12f",
+      "A:9b9b2701-f23d-4816-acaa-e31aebf1612c"
     ],
     "stage": "A_B",
     "stopped": ""
