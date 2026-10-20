@@ -173,6 +173,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
                     h.status = "阻塞"
                     run.stopped = "改約無共識，等待人工裁決"
                     comment(h.issue, f"{role} 不同意協議 v{h.agreement_version}：{p.get('text', '')}。需人工裁決。")
+                    label(h.issue, h.status)
                 else:
                     comment(h.issue, f"{role} 回饋協議 v{h.agreement_version}：{p.get('text', '')}")
                     dispatch(parties(stage)[0], "amend", run, stage, feedback=p.get("text", ""))
@@ -251,6 +252,10 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
         if run.stage != stage:
             return
         h = run.handoffs[stage]
+        if body.startswith("/cancel "):
+            run.cancel(stage, actor, body[8:])
+            label(issue, h.status)
+            return
         if body.startswith("/resolve ") and run.stopped.startswith("改約無共識"):
             h.agreement_version += 1
             h.agreement = body[9:].strip()
@@ -287,10 +292,6 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             label(issue, h.status)
             if not run.stopped:
                 dispatch(parties(stage)[0], "produce", run, stage, feedback=body[8:])
-            return
-        if body.startswith("/cancel "):
-            run.cancel(stage, actor, body[8:])
-            label(issue, h.status)
             return
         return
 

@@ -2,6 +2,8 @@
 
 四個 public repo：A 定義規格、B 實作、C 獨立測試；本 repo 集中工作卡、交付卡及狀態。工作卡不會派工。交付卡先議定、再執行與自檢、下家檢查，最後由指定人工准收才能接棒。狀態保存在 `poc-state` 分支，所有成果以固定 commit SHA 核對。
 
+視覺參考：[協作心智模型](docs/01-協作心智模型-v2.png)、[兩種 Issue 卡片](docs/02-Issue卡片範本-v2.png)、[Dashboard 卡片版](docs/03-協作Dashboard-卡片版-v2.png)。Dashboard 圖是示意設計，未作為實際執行紀錄。
+
 ## 啟動與人工操作
 
 完成 GitHub App、三個角色 repo 的 `MODEL_STUDIO_API_KEY` secret、`MODEL_STUDIO_BASE_URL` variable 後，由指定人工以 Actions → Agent handoff → Run workflow，填入 `mode=start` 及其 GitHub username。每次手動啟動建立新 run。`gh workflow run flow.yml -R foxconn-srdc-ided/agent-collaboration -f mode=start -f human=USERNAME` 效果相同。

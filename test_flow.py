@@ -49,6 +49,15 @@ class FlowTests(unittest.TestCase):
     def test_round_trip(self):
         self.assertEqual(Run.from_dict(self.run.as_dict()).as_dict(), self.run.as_dict())
 
+    def test_amendment_limit_and_cancel_blocked_run(self):
+        self.run.propose("A_B", "v2", "A", amendment=True)
+        self.run.propose("A_B", "v3", "A", amendment=True)
+        with self.assertRaises(FlowError):
+            self.run.propose("A_B", "v4", "A", amendment=True)
+        self.run.stopped = "API failure"
+        self.run.cancel("A_B", "reviewer", "stop this run")
+        self.assertEqual(self.run.handoffs["A_B"].status, "取消")
+
     def test_upstream_defect_preserves_acceptance_and_retests_without_c_fix(self):
         self.run.agree("A_B", "A", 1)
         self.run.agree("A_B", "B", 1)

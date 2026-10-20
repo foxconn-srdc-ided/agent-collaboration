@@ -197,7 +197,9 @@ class Run:
         h.status = "待人工驗收"
 
     def cancel(self, stage: str, github_actor: str, reason: str) -> None:
-        h = self.current(stage)
+        if self.stage != stage or stage not in self.handoffs:
+            raise FlowError("不是目前交接階段")
+        h = self.handoffs[stage]
         if github_actor != self.human or not reason.strip():
             raise FlowError("取消需指定人工及理由")
         h.status = "取消"
