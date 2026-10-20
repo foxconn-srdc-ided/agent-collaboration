@@ -20,12 +20,12 @@
         "issue": 6,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "produce",
-        "pending_role": "A",
-        "review": "協議 v3 已完整符合要求。\n\n1. **功能實現**：已實作 `csv_stats.py` CLI 工具，使用 Python 標準函式庫處理 CSV 檔案，正確計算總筆數、總金額與分類統計。\n\n2. **資料型別與精度**：使用 `decimal.Decimal` 處理金額，確保精確到分（2位小數）。\n\n3. **輸出格式**：輸出為 JSON 格式，包含 `total_count`、`total_amount`、`category_stats`，且所有金額皆為保留兩位小數的字串。\n\n4. **特殊處理**：\n   - 空白分類自動歸類為 'UNKNOWN'\n   - 負金額正確參與總金額與分類金額計算\n\n5. **錯誤處理**：\n   - 只有標頭：返回空結果，符合預期\n   - 缺欄位：拋出 `FieldError`，CLI 輸出錯誤訊息至 stderr，並以非零退出碼退出\n   - 非法金額：拋出 `ValueError`，CLI 輸出錯誤訊息至 stderr，並以非零退出碼退出\n\n6. **測試覆蓋**：已針對正常、負金額、只有標頭、缺欄位、空白分類、非法金額等場景進行測試，結果符合協議定義。\n\n所有驗收條件均已通過。",
-        "sha": "b0875d082b586a3def3fb842832f470e8c6e0763",
+        "pending_action": "review",
+        "pending_role": "B",
+        "review": "",
+        "sha": "b20b44f4589723b9d7315505d5e1df6a2a8fba13",
         "stage": "A_B",
-        "status": "待補件"
+        "status": "待檢查"
       },
       "B_C": {
         "agreed": [],
@@ -86,7 +86,8 @@
       "B:52c86bcf-1928-4e06-a405-6aa4c9f4e12f",
       "A:9b9b2701-f23d-4816-acaa-e31aebf1612c",
       "A:7c93c615-e18e-4d19-92a9-12a47bea1f2b",
-      "B:a9266e10-dd14-44f6-bc77-9242ad9ed7bf"
+      "B:a9266e10-dd14-44f6-bc77-9242ad9ed7bf",
+      "A:c2c45952-ab16-42ae-9924-fad3e3b6ee1d"
     ],
     "stage": "A_B",
     "stopped": ""
