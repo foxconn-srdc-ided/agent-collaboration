@@ -43,6 +43,29 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(h.status, "待補件")
         self.assertFalse(self.run.stopped)
 
+    def test_retries_scope_error_after_human_arbitration_without_new_version(self):
+        self.run.stage = "B_C"
+        h = self.run.handoffs["B_C"]
+        h.issue = 7
+        h.status = "阻塞"
+        h.agreement_version = 4
+        h.agreement = "complete fixed agreement"
+        self.run.stopped = "改約無共識，等待人工裁決"
+        comments = json.dumps([[{"user": {"login": "reviewer"},
+                                 "body": "/resolve complete fixed agreement"},
+                                {"user": {"login": "reviewer"},
+                                 "body": "C 不同意協議 v4：新增未要求的案例"}]])
+        event = {"inputs": {"mode": "retry_arbitration_agree", "run_id": "run-1"},
+                 "sender": {"login": "reviewer"}}
+        with patch.object(controller, "gh", return_value=comments), \
+             patch.object(controller, "comment"), patch.object(controller, "label"), \
+             patch.object(controller, "dispatch") as dispatch:
+            controller.handle(self.runs, event, "workflow_dispatch")
+            dispatch.assert_called_once_with("C", "agree", self.run, "B_C")
+        self.assertEqual(h.agreement_version, 4)
+        self.assertEqual(h.status, "協議中")
+        self.assertFalse(self.run.stopped)
+
     def test_dispatch_payload_has_one_top_level_property(self):
         with patch.object(controller, "gh") as gh:
             controller.dispatch("A", "propose", self.run, "A_B")

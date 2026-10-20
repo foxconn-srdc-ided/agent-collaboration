@@ -125,6 +125,27 @@ def next_stage(run: Run, stage: str) -> None:
 def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs", {})
+        if inputs.get("mode") == "retry_arbitration_agree":
+            run = runs[inputs["run_id"]]
+            h = run.handoffs["B_C"]
+            if (event["sender"]["login"] != run.human or run.stage != "B_C" or
+                    run.stopped != "改約無共識，等待人工裁決" or
+                    h.status != "阻塞" or h.agreement_version != 4 or h.agreed or
+                    h.pending_action or h.pending_role):
+                raise FlowError("只可重試本次裁決後的 C 協議誤判")
+            pages = json.loads(gh("api", f"repos/{CENTRE}/issues/{h.issue}/comments", "--paginate", "--slurp"))
+            comments = [item for page in pages for item in page]
+            if not any(c["user"]["login"] == run.human and c["body"].startswith("/resolve ")
+                       and c["body"][9:].strip() == h.agreement for c in comments):
+                raise FlowError("找不到指定人工的原協議裁決")
+            if not comments or not comments[-1]["body"].startswith("C 不同意協議 v4："):
+                raise FlowError("沒有可重試的 C 誤判回報")
+            run.stopped = ""
+            h.status = "協議中"
+            comment(h.issue, "C 前次審核增加了原裁決未要求的案例；已修正審核範圍，在協議 v4 原卡重試 C 同意。")
+            label(h.issue, h.status)
+            dispatch("C", "agree", run, "B_C")
+            return
         if inputs.get("mode") == "grant_a_fix":
             run = runs[inputs["run_id"]]
             h = run.handoffs["A_B"]
