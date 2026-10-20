@@ -18,14 +18,14 @@
         "blocked_action": "",
         "blocked_role": "",
         "issue": 6,
-        "passed_at": "",
-        "passed_sha": "",
-        "pending_action": "review",
-        "pending_role": "B",
-        "review": "",
+        "passed_at": "2026-10-20T09:46:35.039380+00:00",
+        "passed_sha": "da3af81b6de6256f61caa7e2f1ec6b749c873526",
+        "pending_action": "",
+        "pending_role": "",
+        "review": "已確認協議 v1 的 SHA da3af81b6de6256f61caa7e2f1ec6b749c873526 符合要求。\n\n1. **功能需求符合**：工具確實使用 Python 標準函式庫 CSV，處理 category 和 amount 欄位，並以 JSON 格式輸出總筆數、總金額及分類統計。\n\n2. **數據處理規則符合**：\n   - amount 使用 Decimal 類型，精確至分（2位小數）\n   - category 為空白時歸類為 'UNKNOWN'\n   - 支援負數金額計算\n\n3. **錯誤處理符合**：\n   - 只有標頭時返回空結果\n   - 缺欄位拋出 FieldError 異常\n   - 非法金額拋出 ValueError 異常\n\n4. **測試案例涵蓋完整**：\n   - 正常運作（含正/負金額）\n   - 負金額處理\n   - 空白分類處理\n   - 只有標頭\n   - 缺欄位\n   - 非法金額\n\n5. **輸出格式正確**：\n   - 結果為 JSON 格式，包含 total_count, total_amount, category_stats\n   - category_stats 中每項包含 count 和 amount，皆為 Decimal\n\n所有驗收條件均已通過。",
         "sha": "da3af81b6de6256f61caa7e2f1ec6b749c873526",
         "stage": "A_B",
-        "status": "待檢查"
+        "status": "待人工驗收"
       },
       "B_C": {
         "agreed": [],
@@ -75,7 +75,8 @@
       "A:18dfe1da-b4d5-41b7-9859-aaade3569a71",
       "B:5973e9a4-6420-4c9a-9940-6a8b4c834a35",
       "A:7655c312-2110-424b-bb8d-a748b9d4056b",
-      "A:0938ebed-19b6-4888-86d7-182d1ec1c214"
+      "A:0938ebed-19b6-4888-86d7-182d1ec1c214",
+      "B:3a4899fd-3db1-4447-9c6d-95fbac742bbc"
     ],
     "stage": "A_B",
     "stopped": ""
