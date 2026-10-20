@@ -1,5 +1,7 @@
 # Agent 協作 PoC
 
+[目前部署與驗證狀態](STATUS.md)。
+
 四個 public repo：A 定義規格、B 實作、C 獨立測試；本 repo 集中工作卡、交付卡及狀態。工作卡不會派工。交付卡先議定、再執行與自檢、下家檢查，最後由指定人工准收才能接棒。狀態保存在 `poc-state` 分支，所有成果以固定 commit SHA 核對。
 
 視覺參考：[協作心智模型](docs/01-協作心智模型-v2.png)、[兩種 Issue 卡片](docs/02-Issue卡片範本-v2.png)、[Dashboard 卡片版](docs/03-協作Dashboard-卡片版-v2.png)。Dashboard 圖是示意設計，未作為實際執行紀錄。
