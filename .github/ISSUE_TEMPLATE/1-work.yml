@@ -1,0 +1,27 @@
+name: 工作卡
+description: PM 交辦、資訊與管理紀錄；不自動派工
+title: "[工作] "
+labels: ["工作"]
+body:
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 事項與目的
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: 負責人
+  - type: textarea
+    id: context
+    attributes:
+      label: 背景與附件
+  - type: textarea
+    id: next
+    attributes:
+      label: 狀態與下一步
+  - type: input
+    id: related
+    attributes:
+      label: 關聯交付卡

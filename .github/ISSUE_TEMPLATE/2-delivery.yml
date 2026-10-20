@@ -1,0 +1,25 @@
+name: 交付卡提案
+description: 正式 PoC 交付卡由控制腳本建立；本範本供人工草擬參考
+title: "[交付角色 → 接收角色] "
+labels: ["交付"]
+body:
+  - type: markdown
+    attributes:
+      value: "開卡僅代表提案。正式執行須透過受控派工入口，且雙方同意同版協議。"
+  - type: textarea
+    id: agreement
+    attributes:
+      label: 協議 v1
+      description: 交付範圍、驗收條件、依據需求／上游成果／工作卡
+    validations:
+      required: true
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: 交付成果
+      description: 完成後補固定 commit 連結
+  - type: textarea
+    id: selfcheck
+    attributes:
+      label: 上家自檢
+      description: 完成後補結果與證據

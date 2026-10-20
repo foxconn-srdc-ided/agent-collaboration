@@ -1,0 +1,53 @@
+name: Agent handoff
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Explicit start
+        required: true
+        type: choice
+        options: [start]
+      human:
+        description: GitHub username of human acceptor
+        required: true
+        type: string
+  repository_dispatch:
+    types: [agent-report]
+  issue_comment:
+    types: [created]
+  issues:
+    types: [closed]
+jobs:
+  flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: poc-state
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      issues: read
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: app
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: foxconn-srdc-ided
+          repositories: |
+            agent-a
+            agent-b
+            agent-c
+            agent-collaboration
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app.outputs.token }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app.outputs.token }}
+          ref: poc-state
+          path: .state
+      - name: Route controlled event
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: python3 controller.py
