@@ -9,7 +9,7 @@ import re
 import subprocess
 import sys
 
-from flow import FlowError, PARTIES, Run, STAGES
+from flow import FlowError, Run, STAGES, parties
 
 ORG = "foxconn-srdc-ided"
 CENTRE = f"{ORG}/agent-collaboration"
@@ -31,13 +31,23 @@ def gh(*args: str, payload: dict | None = None) -> str:
 
 def dispatch(role: str, action: str, run: Run, stage: str, **extra: object) -> None:
     h = run.handoffs[stage]
-    index = STAGES.index(stage)
-    previous = run.handoffs[STAGES[index - 1]] if index else None
+    if stage.startswith("B_C_FIX_"):
+        previous = run.handoffs["A_B"]
+    elif stage == "C_HUMAN":
+        correction = [v for k, v in run.handoffs.items() if k.startswith("B_C_FIX_") and v.status == "已驗收"]
+        previous = correction[-1] if correction else run.handoffs["B_C"]
+    else:
+        index = STAGES.index(stage)
+        previous = run.handoffs[STAGES[index - 1]] if index else None
+    prior_b = [v for k, v in run.handoffs.items() if k.startswith("B_C_FIX_") and v.status == "已驗收"]
+    prior_b_sha = (prior_b[-1].passed_sha if prior_b else run.handoffs["B_C"].passed_sha) if stage.startswith("B_C_FIX_") else ""
     data = {"run_id": run.run_id, "stage": stage, "action": action,
             "issue": h.issue, "version": h.agreement_version, "attempt": h.attempt,
             "agreement": h.agreement, "sha": h.sha, "task": TASK,
             "previous_sha": previous.passed_sha if previous else "",
-            "previous_repo": ROLE_REPO[PARTIES[previous.stage][0]] if previous else "",
+            "previous_repo": ROLE_REPO[parties(previous.stage)[0]] if previous else "",
+            "prior_b_sha": prior_b_sha,
+            "original_agreement": run.handoffs["B_C"].agreement if stage.startswith("B_C_FIX_") else "",
             **extra}
     gh("api", f"repos/{ORG}/{ROLE_REPO[role]}/dispatches", "-X", "POST",
        payload={"event_type": "agent-task", "client_payload": data})
@@ -56,9 +66,12 @@ def label(issue: int, status: str) -> None:
 
 
 def create_card(run: Run, stage: str, agreement: str) -> None:
-    giver, receiver = PARTIES[stage]
-    title = f"[{giver} → {receiver}] CSV 統計交付 · {run.run_id}"
-    body = (f"## 協議 v1\n{agreement}\n\n## 交付成果\n待提交固定 commit。\n\n"
+    giver, receiver = parties(stage)
+    correction = stage.startswith("B_C_FIX_")
+    title = f"[{giver} → {receiver}] CSV 統計{'修正' if correction else ''}交付 · {run.run_id}"
+    origin = (f"依據原交付卡 #{run.handoffs['B_C'].issue} 及其已准收協議；原准收紀錄保留。\n\n"
+              if correction else "")
+    body = (f"{origin}## 協議 v1\n{agreement}\n\n## 交付成果\n待提交固定 commit。\n\n"
             f"## 上家自檢\n待提交。\n\nRun: `{run.run_id}`。定約、檢查與准收請使用本卡留言。")
     url = gh("issue", "create", "-R", CENTRE, "--title", title, "--body", body,
              "--label", "交付", "--label", "協議中")
@@ -90,15 +103,16 @@ def issue_from_event(event: dict) -> int:
 
 def find_run(runs: dict[str, Run], issue: int) -> tuple[Run, str]:
     for run in runs.values():
-        for stage in STAGES:
-            if run.handoffs[stage].issue == issue:
+        for stage, handoff in run.handoffs.items():
+            if handoff.issue == issue:
                 return run, stage
     raise FlowError("不是受控交付卡")
 
 
 def next_stage(run: Run, stage: str) -> None:
     if run.stage != "DONE":
-        dispatch(PARTIES[run.stage][0], "propose", run, run.stage)
+        action = "produce" if stage.startswith("B_C_FIX_") else "propose"
+        dispatch(parties(run.stage)[0], action, run, run.stage)
     else:
         comment(run.handoffs[stage].issue, "整輪已完成；可更新協作中心的 submodule 固定版本。")
 
@@ -150,7 +164,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             run.propose(stage, p["text"], role)
             create_card(run, stage, p["text"])
             if stage != "C_HUMAN":
-                dispatch(PARTIES[stage][1], "agree", run, stage)
+                dispatch(parties(stage)[1], "agree", run, stage)
             else:
                 comment(h.issue, f"請指定人工驗收者 @{run.human} 留言 `/agree v{h.agreement_version}` 同意測試範圍。")
         elif action == "agree":
@@ -161,20 +175,20 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
                     comment(h.issue, f"{role} 不同意協議 v{h.agreement_version}：{p.get('text', '')}。需人工裁決。")
                 else:
                     comment(h.issue, f"{role} 回饋協議 v{h.agreement_version}：{p.get('text', '')}")
-                    dispatch(PARTIES[stage][0], "amend", run, stage, feedback=p.get("text", ""))
+                    dispatch(parties(stage)[0], "amend", run, stage, feedback=p.get("text", ""))
                 return
             ready = run.agree(stage, role, p["version"])
             comment(h.issue, f"{role} 同意協議 v{h.agreement_version}。")
             if ready:
                 label(h.issue, h.status)
-                dispatch(PARTIES[stage][0], "produce", run, stage)
-            elif role == PARTIES[stage][1]:
-                dispatch(PARTIES[stage][0], "agree", run, stage)
+                dispatch(parties(stage)[0], "produce", run, stage)
+            elif role == parties(stage)[1]:
+                dispatch(parties(stage)[0], "agree", run, stage)
         elif action == "amend":
             run.propose(stage, p["text"], role, amendment=True)
             comment(h.issue, f"協議 v{h.agreement_version} 改約提案：\n{h.agreement}")
             label(h.issue, h.status)
-            dispatch(PARTIES[stage][1], "agree", run, stage)
+            dispatch(parties(stage)[1], "agree", run, stage)
         elif action == "produce":
             gh("api", f"repos/{ORG}/{ROLE_REPO[role]}/git/commits/{p['sha']}")
             if stage == "C_HUMAN":
@@ -185,14 +199,14 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             comment(h.issue, f"{role} 交付：{link}\n\n自檢：{p['text']}\nAttempt: {h.attempt}")
             label(h.issue, h.status)
             if stage != "C_HUMAN":
-                dispatch(PARTIES[stage][1], "review", run, stage, source_repo=ROLE_REPO[role])
+                dispatch(parties(stage)[1], "review", run, stage, source_repo=ROLE_REPO[role])
         elif action == "review":
             run.review_result(stage, role, p["sha"], p["attempt"], p["passed"], p["text"])
             comment(h.issue, f"{role} 檢查協議 v{h.agreement_version}、SHA `{p['sha']}`："
                   f"{'通過' if p['passed'] else '退回'}\n\n{p['text']}")
             label(h.issue, h.status)
             if not p["passed"] and not run.stopped:
-                dispatch(PARTIES[stage][0], "produce", run, stage, feedback=p["text"])
+                dispatch(parties(stage)[0], "produce", run, stage, feedback=p["text"])
         elif action == "failed":
             h.blocked_action = p.get("failed_action", "")
             h.blocked_role = role
@@ -211,6 +225,13 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             label(h.issue, h.status)
             if not run.stopped:
                 dispatch(role, "produce", run, stage, feedback=p["text"])
+        elif action == "upstream_defect":
+            correction = run.start_correction(p["text"])
+            comment(h.issue, f"C 獨立測試發現 B 缺陷；保留原准收紀錄。\n{p['text']}")
+            if correction:
+                dispatch("B", "propose", run, correction, feedback=p["text"])
+            else:
+                label(h.issue, h.status)
         else:
             raise FlowError("未知 Agent 動作")
         return
@@ -227,6 +248,8 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
         body = event["comment"]["body"].strip()
         if actor != run.human:
             return
+        if run.stage != stage:
+            return
         h = run.handoffs[stage]
         if body.startswith("/resolve ") and run.stopped.startswith("改約無共識"):
             h.agreement_version += 1
@@ -236,7 +259,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             run.stopped = ""
             comment(issue, f"人工裁決為協議 v{h.agreement_version}，雙方仍須同意：\n{h.agreement}")
             label(issue, h.status)
-            dispatch(PARTIES[stage][1], "agree", run, stage)
+            dispatch(parties(stage)[1], "agree", run, stage)
             return
         if body == "/resume" and run.stopped and h.blocked_action:
             action, role = h.blocked_action, h.blocked_role
@@ -248,11 +271,11 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             dispatch(role, action, run, stage)
             return
         h = run.current(stage)
-        if body.startswith("/amend ") and h.amendments < 2:
+        if body.startswith("/amend ") and h.agreement and h.amendments < 2:
             h.status = "協議中"
             h.passed_sha = ""
             label(issue, h.status)
-            dispatch(PARTIES[stage][0], "amend", run, stage, feedback=body[7:])
+            dispatch(parties(stage)[0], "amend", run, stage, feedback=body[7:])
             return
         if stage == "C_HUMAN" and body == f"/agree v{h.agreement_version}":
             ready = run.agree(stage, "HUMAN", h.agreement_version)
@@ -260,10 +283,10 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
                 dispatch("C", "agree", run, stage)
             return
         if body.startswith("/reject ") and h.status == "待人工驗收":
-            run.fix(stage, PARTIES[stage][0], body[8:])
+            run.fix(stage, parties(stage)[0], body[8:])
             label(issue, h.status)
             if not run.stopped:
-                dispatch(PARTIES[stage][0], "produce", run, stage, feedback=body[8:])
+                dispatch(parties(stage)[0], "produce", run, stage, feedback=body[8:])
             return
         if body.startswith("/cancel "):
             run.cancel(stage, actor, body[8:])

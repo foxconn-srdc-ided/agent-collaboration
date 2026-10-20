@@ -49,6 +49,34 @@ class FlowTests(unittest.TestCase):
     def test_round_trip(self):
         self.assertEqual(Run.from_dict(self.run.as_dict()).as_dict(), self.run.as_dict())
 
+    def test_upstream_defect_preserves_acceptance_and_retests_without_c_fix(self):
+        self.run.agree("A_B", "A", 1)
+        self.run.agree("A_B", "B", 1)
+        self.run.submit("A_B", "A", SHA, 1, "self-check")
+        self.run.review_result("A_B", "B", SHA, 1, True, "checked")
+        self.run.accept("A_B", "reviewer", SHA, "approved")
+        self.run.propose("B_C", "implementation criteria", "B")
+        self.run.agree("B_C", "B", 1)
+        self.run.agree("B_C", "C", 1)
+        self.run.submit("B_C", "B", SHA, 1, "self-check")
+        self.run.review_result("B_C", "C", SHA, 1, True, "checked")
+        self.run.accept("B_C", "reviewer", SHA, "approved")
+        self.run.propose("C_HUMAN", "test scope", "C")
+        self.run.agree("C_HUMAN", "C", 1)
+        self.run.agree("C_HUMAN", "HUMAN", 1)
+        correction = self.run.start_correction("independent test failure")
+        self.assertEqual(correction, "B_C_FIX_1")
+        self.assertEqual(self.run.handoffs["B_C"].status, "已驗收")
+        self.assertEqual(self.run.fixes, {"A": 0, "B": 1, "C": 0})
+        self.run.propose(correction, "repair original agreement", "B")
+        self.run.agree(correction, "B", 1)
+        self.run.agree(correction, "C", 1)
+        self.run.submit(correction, "B", "b" * 40, 1, "self-check")
+        self.run.review_result(correction, "C", "b" * 40, 1, True, "checked")
+        self.run.accept(correction, "reviewer", "b" * 40, "approved")
+        self.assertEqual(self.run.stage, "C_HUMAN")
+        self.assertEqual(self.run.handoffs["C_HUMAN"].attempt, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

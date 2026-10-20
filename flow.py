@@ -15,6 +15,10 @@ class FlowError(ValueError):
     pass
 
 
+def parties(stage: str) -> tuple[str, str]:
+    return ("B", "C") if stage.startswith("B_C_FIX_") else PARTIES[stage]
+
+
 @dataclass
 class Handoff:
     stage: str
@@ -60,7 +64,7 @@ class Run:
     def current(self, stage: str) -> Handoff:
         if self.stopped:
             raise FlowError(f"流程已暫停：{self.stopped}")
-        if self.stage != stage or stage not in STAGES:
+        if self.stage != stage or stage not in self.handoffs:
             raise FlowError("不是目前交接階段")
         return self.handoffs[stage]
 
@@ -80,7 +84,7 @@ class Run:
 
     def propose(self, stage: str, text: str, actor: str, *, amendment: bool = False) -> None:
         h = self.current(stage)
-        if actor != PARTIES[stage][0]:
+        if actor != parties(stage)[0]:
             raise FlowError("只有上家可以提案")
         if not text.strip():
             raise FlowError("協議內容不可為空")
@@ -101,11 +105,11 @@ class Run:
         h = self.current(stage)
         if h.status != "協議中" or not h.agreement or version != h.agreement_version:
             raise FlowError("協議版本或狀態不符")
-        if actor not in PARTIES[stage]:
+        if actor not in parties(stage):
             raise FlowError("非交接當事方")
         if actor not in h.agreed:
             h.agreed.append(actor)
-        if set(h.agreed) == set(PARTIES[stage]):
+        if set(h.agreed) == set(parties(stage)):
             h.status = "執行中"
             h.attempt += 1
             return True
@@ -113,7 +117,7 @@ class Run:
 
     def submit(self, stage: str, actor: str, sha: str, attempt: int, self_check: str) -> None:
         h = self.current(stage)
-        if h.status not in {"執行中", "待補件"} or actor != PARTIES[stage][0]:
+        if h.status not in {"執行中", "待補件"} or actor != parties(stage)[0]:
             raise FlowError("不接受此交付")
         if attempt != h.attempt or len(sha) != 40 or not all(c in "0123456789abcdef" for c in sha):
             raise FlowError("交付版本或嘗試序號無效")
@@ -126,7 +130,7 @@ class Run:
 
     def review_result(self, stage: str, actor: str, sha: str, attempt: int, passed: bool, evidence: str) -> None:
         h = self.current(stage)
-        if h.status != "待檢查" or actor != PARTIES[stage][1] or sha != h.sha or attempt != h.attempt:
+        if h.status != "待檢查" or actor != parties(stage)[1] or sha != h.sha or attempt != h.attempt:
             raise FlowError("檢查身分、版本或狀態不符")
         if not evidence.strip():
             raise FlowError("缺少逐項檢查證據")
@@ -136,11 +140,11 @@ class Run:
             h.status = "待人工驗收"
         else:
             h.passed_sha = ""
-            self.fix(stage, PARTIES[stage][0], evidence)
+            self.fix(stage, parties(stage)[0], evidence)
 
     def fix(self, stage: str, actor: str, reason: str) -> None:
         h = self.current(stage)
-        if actor != PARTIES[stage][0] or h.status not in {"待補件", "待檢查", "待人工驗收"}:
+        if actor != parties(stage)[0] or h.status not in {"待補件", "待檢查", "待人工驗收"}:
             raise FlowError("此時不可修正")
         if not reason.strip():
             raise FlowError("退件需要理由")
@@ -160,9 +164,30 @@ class Run:
         if not reason.strip():
             raise FlowError("准收需完成理由")
         h.status = "已驗收"
-        index = STAGES.index(stage)
-        self.stage = STAGES[index + 1] if index + 1 < len(STAGES) else "DONE"
+        if stage.startswith("B_C_FIX_"):
+            self.stage = "C_HUMAN"
+            retest = self.handoffs["C_HUMAN"]
+            retest.status = "執行中"
+            retest.attempt += 1
+            retest.sha = retest.passed_sha = ""
+        else:
+            index = STAGES.index(stage)
+            self.stage = STAGES[index + 1] if index + 1 < len(STAGES) else "DONE"
         return self.stage
+
+    def start_correction(self, reason: str) -> str | None:
+        h = self.current("C_HUMAN")
+        if h.status != "執行中" or not reason.strip():
+            raise FlowError("此時不可申報上游缺陷")
+        self.fixes["B"] += 1
+        if self.fixes["B"] > 2:
+            h.status = "阻塞"
+            self.stopped = "B 修正額度耗盡"
+            return None
+        name = f"B_C_FIX_{sum(k.startswith('B_C_FIX_') for k in self.handoffs) + 1}"
+        self.handoffs[name] = Handoff(name)
+        self.stage = name
+        return name
 
     def submit_final(self, sha: str, attempt: int, self_check: str) -> None:
         self.submit("C_HUMAN", "C", sha, attempt, self_check)
