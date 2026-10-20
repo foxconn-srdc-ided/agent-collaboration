@@ -54,7 +54,7 @@ def dispatch(role: str, action: str, run: Run, stage: str, **extra: object) -> N
             "original_agreement": run.handoffs["B_C"].agreement if stage.startswith("B_C_FIX_") else "",
             **extra}
     gh("api", f"repos/{ORG}/{ROLE_REPO[role]}/dispatches", "-X", "POST",
-       payload={"event_type": "agent-task", "client_payload": data})
+       payload={"event_type": "agent-task", "client_payload": {"task": data}})
 
 
 def comment(issue: int, body: str) -> None:
@@ -155,7 +155,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "repository_dispatch":
         if event.get("action") != "agent-report" or event.get("sender", {}).get("login") != AUTOMATION_LOGIN:
             raise FlowError("拒絕非授權帳號的派工回報")
-        p = event["client_payload"]
+        p = event["client_payload"]["report"]
         run = runs[p["run_id"]]
         stage = p["stage"]
         h = run.current(stage)

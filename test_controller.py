@@ -20,6 +20,13 @@ class ControllerTests(unittest.TestCase):
             controller.handle(self.runs, {"inputs": {"mode": "start", "human": ""}}, "workflow_dispatch")
         self.assertEqual(self.runs["run-123"].human, "ycliu-dev")
 
+    def test_dispatch_payload_has_one_top_level_property(self):
+        with patch.object(controller, "gh") as gh:
+            controller.dispatch("A", "propose", self.run, "A_B")
+        payload = gh.call_args.kwargs["payload"]
+        self.assertEqual(list(payload["client_payload"]), ["task"])
+        self.assertEqual(payload["client_payload"]["task"]["run_id"], "run-1")
+
     def test_work_card_events_do_not_dispatch(self):
         with patch.object(controller, "gh") as gh, patch.object(controller, "dispatch") as dispatch:
             controller.handle(self.runs, {"action": "created", "issue": {"number": 99},
@@ -75,10 +82,10 @@ class ControllerTests(unittest.TestCase):
         self.run.handoffs["A_B"].pending_role = "A"
         self.run.handoffs["A_B"].pending_action = "propose"
         event = {"action": "agent-report", "sender": {"login": "ycliu-dev"},
-                 "client_payload": {"run_id": "run-1", "stage": "A_B", "role": "A",
+                 "client_payload": {"report": {"run_id": "run-1", "stage": "A_B", "role": "A",
                                     "repo": "agent-a", "report_id": "r1", "version": 1,
                                     "attempt": 0, "action": "failed", "failed_action": "propose",
-                                    "text": "API unavailable"}}
+                                    "text": "API unavailable"}}}
         with patch.object(controller, "gh"):
             controller.handle(self.runs, event, "repository_dispatch")
         self.assertIn("API unavailable", self.run.stopped)
@@ -91,10 +98,10 @@ class ControllerTests(unittest.TestCase):
                    "report_id": "r1", "version": 1, "attempt": 0, "action": "agree", "agree": True}
         with self.assertRaisesRegex(Exception, "授權帳號"):
             controller.handle(self.runs, {"action": "agent-report", "sender": {"login": "intruder"},
-                                          "client_payload": payload}, "repository_dispatch")
+                                          "client_payload": {"report": payload}}, "repository_dispatch")
         with self.assertRaisesRegex(Exception, "待處理派工"):
             controller.handle(self.runs, {"action": "agent-report", "sender": {"login": "ycliu-dev"},
-                                          "client_payload": payload}, "repository_dispatch")
+                                          "client_payload": {"report": payload}}, "repository_dispatch")
         self.assertEqual(self.run.seen, [])
 
     def test_complete_three_handoffs_routes_to_done(self):
@@ -124,7 +131,7 @@ class ControllerTests(unittest.TestCase):
                        "version": h.agreement_version, "attempt": h.attempt,
                        "action": action, **fields}
             controller.handle(self.runs, {"action": "agent-report", "sender": {"login": "ycliu-dev"},
-                                          "client_payload": payload}, "repository_dispatch")
+                                          "client_payload": {"report": payload}}, "repository_dispatch")
 
         def close(stage):
             h = self.run.handoffs[stage]
