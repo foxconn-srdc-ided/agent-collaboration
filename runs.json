@@ -12,17 +12,17 @@
         "agreement_version": 1,
         "amendments": 0,
         "attempt": 0,
-        "blocked_action": "",
-        "blocked_role": "",
+        "blocked_action": "propose",
+        "blocked_role": "A",
         "issue": null,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "propose",
-        "pending_role": "A",
+        "pending_action": "",
+        "pending_role": "",
         "review": "",
         "sha": "",
         "stage": "A_B",
-        "status": "協議中"
+        "status": "阻塞"
       },
       "B_C": {
         "agreed": [],
@@ -63,8 +63,10 @@
     },
     "human": "ycliu-dev",
     "run_id": "run-39399553395",
-    "seen": [],
+    "seen": [
+      "A:7e57421a-555c-4858-81ca-221c99dc8255"
+    ],
     "stage": "A_B",
-    "stopped": ""
+    "stopped": "A 工具或 API 失敗：Extra data: line 3 column 5 (char 12)"
   }
 }
