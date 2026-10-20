@@ -35,16 +35,16 @@
       "B_C": {
         "agreed": [],
         "agreement": "交付範圍：實作 Python 標準函式庫 CSV 統計 CLI 工具，處理 category 與 amount 欄位，輸出 JSON 格式統計結果。驗收條件：1) 正常輸入產生正確統計；2) 負金額正確計算；3) 空白分類歸為 UNKNOWN；4) 僅標頭時輸出預設值；5) 缺欄位拋 FieldError 並輸出錯誤訊息；6) 非法金額拋 ValueError 並輸出錯誤訊息。依據資料：SPEC.md 中定義的功能、格式、錯誤行為與測試範例。",
-        "agreement_version": 1,
-        "amendments": 0,
+        "agreement_version": 2,
+        "amendments": 1,
         "attempt": 0,
         "blocked_action": "",
         "blocked_role": "",
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "amend",
-        "pending_role": "B",
+        "pending_action": "agree",
+        "pending_role": "C",
         "review": "",
         "sha": "",
         "stage": "B_C",
@@ -99,7 +99,8 @@
       "A:0d710bb3-6925-4cdf-913e-fa2044e9756c",
       "B:fc2a657e-2367-428f-bca2-c83f781cb7a9",
       "B:3861a6e8-2559-49c3-9c72-687237d1f2c4",
-      "C:ca2b762f-f4ec-4937-9a6a-1cf7aeaba373"
+      "C:ca2b762f-f4ec-4937-9a6a-1cf7aeaba373",
+      "B:3e4eceab-8923-4c3a-9007-e3d12986b8e2"
     ],
     "stage": "B_C",
     "stopped": ""
