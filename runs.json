@@ -43,12 +43,12 @@
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "",
-        "pending_role": "",
+        "pending_action": "agree",
+        "pending_role": "C",
         "review": "",
         "sha": "",
         "stage": "B_C",
-        "status": "阻塞"
+        "status": "協議中"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -108,6 +108,6 @@
       "C:c678317d-4abb-400e-8868-63cb989a449e"
     ],
     "stage": "B_C",
-    "stopped": "改約無共識，等待人工裁決"
+    "stopped": ""
   }
 }
