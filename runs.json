@@ -8,23 +8,24 @@
     "handoffs": {
       "A_B": {
         "agreed": [
-          "B"
+          "B",
+          "A"
         ],
         "agreement": "交付範圍、驗收條件、依據資料",
         "agreement_version": 2,
         "amendments": 1,
-        "attempt": 1,
+        "attempt": 2,
         "blocked_action": "",
         "blocked_role": "",
         "issue": 6,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "agree",
+        "pending_action": "produce",
         "pending_role": "A",
         "review": "",
         "sha": "da3af81b6de6256f61caa7e2f1ec6b749c873526",
         "stage": "A_B",
-        "status": "協議中"
+        "status": "執行中"
       },
       "B_C": {
         "agreed": [],
@@ -77,7 +78,8 @@
       "A:0938ebed-19b6-4888-86d7-182d1ec1c214",
       "B:3a4899fd-3db1-4447-9c6d-95fbac742bbc",
       "A:aa168490-fdd2-4526-b446-0a52524645f9",
-      "B:406e41a1-6763-4a17-9c68-f898d7b5316f"
+      "B:406e41a1-6763-4a17-9c68-f898d7b5316f",
+      "A:dfe72b24-af6d-4575-90ec-f566fa273d23"
     ],
     "stage": "A_B",
     "stopped": ""
