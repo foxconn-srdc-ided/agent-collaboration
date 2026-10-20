@@ -10,6 +10,7 @@ on:
       human:
         description: GitHub username of human acceptor
         required: false
+        default: ycliu-dev
         type: string
       run_id:
         description: Existing run ID for resume

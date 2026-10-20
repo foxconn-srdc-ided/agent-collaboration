@@ -14,6 +14,12 @@ class ControllerTests(unittest.TestCase):
         self.run = Run("run-1", "reviewer")
         self.runs = {self.run.run_id: self.run}
 
+    def test_start_defaults_acceptor_to_token_owner(self):
+        with patch.dict(controller.os.environ, {"GITHUB_RUN_ID": "123"}), \
+             patch.object(controller, "dispatch"):
+            controller.handle(self.runs, {"inputs": {"mode": "start", "human": ""}}, "workflow_dispatch")
+        self.assertEqual(self.runs["run-123"].human, "ycliu-dev")
+
     def test_work_card_events_do_not_dispatch(self):
         with patch.object(controller, "gh") as gh, patch.object(controller, "dispatch") as dispatch:
             controller.handle(self.runs, {"action": "created", "issue": {"number": 99},

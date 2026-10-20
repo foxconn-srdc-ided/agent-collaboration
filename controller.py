@@ -143,7 +143,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             return
         if inputs.get("mode") != "start":
             raise FlowError("未知手動模式")
-        human = inputs.get("human", "").strip()
+        human = inputs.get("human", "").strip() or AUTOMATION_LOGIN
         run_id = f"run-{os.environ['GITHUB_RUN_ID']}"
         if run_id in runs:
             return
