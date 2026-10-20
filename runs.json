@@ -12,17 +12,17 @@
         "agreement_version": 1,
         "amendments": 0,
         "attempt": 0,
-        "blocked_action": "propose",
-        "blocked_role": "A",
+        "blocked_action": "",
+        "blocked_role": "",
         "issue": null,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "",
-        "pending_role": "",
+        "pending_action": "propose",
+        "pending_role": "A",
         "review": "",
         "sha": "",
         "stage": "A_B",
-        "status": "阻塞"
+        "status": "協議中"
       },
       "B_C": {
         "agreed": [],
@@ -69,6 +69,6 @@
       "A:f7a0ac54-e5f2-4e2e-8cee-135e50f0a81f"
     ],
     "stage": "A_B",
-    "stopped": "A 工具或 API 失敗：Model response missing ('text',); available keys: ['error', 'message', 'type']"
+    "stopped": ""
   }
 }
