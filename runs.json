@@ -44,14 +44,14 @@
         "blocked_action": "",
         "blocked_role": "",
         "issue": 7,
-        "passed_at": "2026-10-20T12:41:40.162039+00:00",
-        "passed_sha": "7261a38c1fa3f5b2a57f6caca6db7f2849186434",
-        "pending_action": "",
-        "pending_role": "",
-        "review": "1. 協議 v4 規格與 SHA 7261a38c1fa3f5b2a57f6caca6db7f2849186434 一致：根據協議，需審查 SPEC.md 內容，未發現不符。\n2. csv_stats.py 實作符合 SPEC.md 規格：使用 Python 標準函式庫，正確處理 category 和 amount 欄位，使用 Decimal 進行運算，輸出 JSON 格式，包含 total_count、total_amount、category_stats，金額格式化為兩位小數，空白分類歸 UNKNOWN，負金額正確計算。\n3. test_csv_stats.py 測試覆蓋所有情況：測試正常、負金額、只有標頭、缺欄位、空白分類、非法金額六種情境，符合要求。\n4. README.md 文件完整：包含使用方式、輸出格式、特殊處理和錯誤處理說明。\n固定測試 exit=0:\ntest_empty_category (test_csv_stats.TestCSVStats.test_empty_category) ... ok\ntest_invalid_amount (test_csv_stats.TestCSVStats.test_invalid_amount) ... ok\ntest_missing_field (test_csv_stats.TestCSVStats.test_missing_field) ... ok\ntest_negative_amount (test_csv_stats.TestCSVStats.test_negative_amount) ... ok\ntest_normal_case (test_csv_stats.TestCSVStats.test_normal_case) ... ok\ntest_only_header (test_csv_stats.TestCSVStats.test_only_header) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.141s\n\nOK\n",
+        "passed_at": "",
+        "passed_sha": "",
+        "pending_action": "review",
+        "pending_role": "C",
+        "review": "",
         "sha": "7261a38c1fa3f5b2a57f6caca6db7f2849186434",
         "stage": "B_C",
-        "status": "待人工驗收"
+        "status": "待檢查"
       },
       "C_HUMAN": {
         "agreed": [],
