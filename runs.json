@@ -25,12 +25,12 @@
         "issue": 6,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "produce",
-        "pending_role": "A",
-        "review": "未找到 SPEC.md 文件。根據協議要求，應存在描述 CSV 統計 CLI 工具規格的文件。此外，也未發現任何 Python 檔案（src/**/*.py）符合此工具的實作。因此無法確認是否符合所有驗收條件。",
-        "sha": "9fe46367ce14a79a3911b2601c732079bd1ca399",
+        "pending_action": "review",
+        "pending_role": "B",
+        "review": "",
+        "sha": "6c501ce430286a48d1df70a561a22b6faa268230",
         "stage": "A_B",
-        "status": "待補件"
+        "status": "待檢查"
       },
       "B_C": {
         "agreed": [],
@@ -95,7 +95,8 @@
       "A:c2c45952-ab16-42ae-9924-fad3e3b6ee1d",
       "B:17644a84-368e-4195-9bea-4973cf7e1622",
       "A:12f55010-410e-45e1-a2c9-f658c4725690",
-      "B:976f6d46-7c49-4589-881f-0e66f40e8849"
+      "B:976f6d46-7c49-4589-881f-0e66f40e8849",
+      "A:0d710bb3-6925-4cdf-913e-fa2044e9756c"
     ],
     "stage": "A_B",
     "stopped": ""
