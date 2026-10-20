@@ -34,8 +34,8 @@
       },
       "B_C": {
         "agreed": [],
-        "agreement": "交付範圍：實作 Python 標準函式庫 CSV 統計 CLI 工具，處理 category 與 amount 欄位，輸出 JSON 格式統計結果。驗收條件：1) 正常輸入產生正確統計；2) 負金額正確計算；3) 空白分類歸為 UNKNOWN；4) 僅標頭時輸出預設值；5) 缺欄位拋 FieldError 並輸出錯誤訊息；6) 非法金額拋 ValueError 並輸出錯誤訊息。依據資料：SPEC.md 中定義的功能、格式、錯誤行為與測試範例。",
-        "agreement_version": 3,
+        "agreement": "交付範圍：B 依 agent-a 固定 SHA 6c501ce430286a48d1df70a561a22b6faa268230 的 SPEC.md，交付 csv_stats.py、test_csv_stats.py、README.md；僅使用 Python 標準函式庫。驗收條件：CLI 讀取含 category、amount 欄位的 CSV，以 Decimal 運算，輸出含 total_count、total_amount、category_stats 的可解析 JSON；所有金額為兩位小數字串。空白分類歸 UNKNOWN，負金額正確計算；只有標頭時輸出 {\"total_count\":0,\"total_amount\":\"0.00\",\"category_stats\":{}}。缺欄位時 stderr 輸出「錯誤：CSV 檔案缺少必要欄位。」、退出碼 1；非法金額時 stderr 輸出「錯誤：金額格式無效。」、退出碼 1。test_csv_stats.py 須驗證正常、負金額、只有標頭、缺欄位、空白分類、非法金額六種情境並可執行通過。C 應依上述固定 SPEC.md 與 B 的固定交付 SHA 逐項審查。",
+        "agreement_version": 4,
         "amendments": 2,
         "attempt": 0,
         "blocked_action": "",
@@ -43,12 +43,12 @@
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "",
-        "pending_role": "",
+        "pending_action": "agree",
+        "pending_role": "C",
         "review": "",
         "sha": "",
         "stage": "B_C",
-        "status": "阻塞"
+        "status": "協議中"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -107,6 +107,6 @@
       "C:20c85a41-d2dd-4a5d-b0ef-f9fc9681683e"
     ],
     "stage": "B_C",
-    "stopped": "改約無共識，等待人工裁決"
+    "stopped": ""
   }
 }
