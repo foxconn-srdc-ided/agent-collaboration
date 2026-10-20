@@ -6,7 +6,7 @@ on:
         description: Explicit start or resume after tool failure
         required: true
         type: choice
-        options: [start, resume]
+        options: [start, resume, retry_invalid_amend]
       human:
         description: GitHub username of human acceptor
         required: false

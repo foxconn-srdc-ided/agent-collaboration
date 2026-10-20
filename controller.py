@@ -125,6 +125,30 @@ def next_stage(run: Run, stage: str) -> None:
 def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs", {})
+        if inputs.get("mode") == "retry_invalid_amend":
+            run = runs[inputs["run_id"]]
+            h = run.handoffs["A_B"]
+            if (event["sender"]["login"] != run.human or run.stage != "A_B" or
+                    h.agreement != "交付範圍、驗收條件、依據資料" or h.amendments != 1 or
+                    h.pending_action != "produce" or h.pending_role != "A"):
+                raise FlowError("只可重試已確認的 A→B 無效改約")
+            issue = json.loads(gh("api", f"repos/{CENTRE}/issues/{h.issue}"))
+            original = issue["body"].split("## 協議 v1\n", 1)[1].split("\n\n## 交付成果", 1)[0]
+            comments = json.loads(gh("api", f"repos/{CENTRE}/issues/{h.issue}/comments", "--paginate"))
+            feedback = next((c["body"][7:] for c in reversed(comments)
+                             if c["user"]["login"] == run.human and c["body"].startswith("/amend ")), "")
+            if not feedback:
+                raise FlowError("找不到原人工改約指示")
+            h.agreement = original
+            h.agreement_version = 1
+            h.amendments = 0
+            h.agreed = []
+            h.status = "協議中"
+            h.pending_action = h.pending_role = ""
+            comment(h.issue, "協議 v2 為無效佔位提案；已取消由此產生的交付，依原 `/amend` 指示在本 run 重試。")
+            label(h.issue, h.status)
+            dispatch("A", "amend", run, "A_B", feedback=feedback)
+            return
         if inputs.get("mode") == "resume":
             run = runs[inputs["run_id"]]
             if event["sender"]["login"] != run.human or not run.stopped:
