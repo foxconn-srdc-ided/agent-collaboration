@@ -23,14 +23,14 @@
         "blocked_action": "",
         "blocked_role": "",
         "issue": 6,
-        "passed_at": "",
-        "passed_sha": "",
-        "pending_action": "review",
-        "pending_role": "B",
-        "review": "",
+        "passed_at": "2026-10-20T12:16:30.030025+00:00",
+        "passed_sha": "6c501ce430286a48d1df70a561a22b6faa268230",
+        "pending_action": "",
+        "pending_role": "",
+        "review": "1. 協議 v3 固定 SHA 6c501ce430286a48d1df70a561a22b6faa268230 与提供的 SPEC.md 内容一致。\n2. SPEC.md 明确定义了 CSV 输入格式，包含 category 和 amount 两字段，并规定使用 Python 标准库 csv 模块处理。\n3. 明确指定 amount 字段为数值类型，使用 Decimal 进行精确运算，保留两位小数。\n4. 规定了输出 JSON 包含 total_count（整数）、total_amount（字符串形式的 Decimal，保留两位小数）和 category_stats（字典结构）。\n5. 对空白分类处理为 'UNKNOWN'，负金额正确参与计算。\n6. 错误处理部分详细说明了三种情况：只有标头、缺栏位（抛出 FieldError）、非法金额（抛出 ValueError），并给出对应的 CLI 错误信息及退出码。\n7. 提供了多个测试示例，涵盖正常输入、负金额、空白分类、缺栏位错误、非法金额错误等场景。\n8. 所有要求均已满足，包括格式、精度、行为规范和异常处理机制。",
         "sha": "6c501ce430286a48d1df70a561a22b6faa268230",
         "stage": "A_B",
-        "status": "待檢查"
+        "status": "待人工驗收"
       },
       "B_C": {
         "agreed": [],
@@ -96,7 +96,8 @@
       "B:17644a84-368e-4195-9bea-4973cf7e1622",
       "A:12f55010-410e-45e1-a2c9-f658c4725690",
       "B:976f6d46-7c49-4589-881f-0e66f40e8849",
-      "A:0d710bb3-6925-4cdf-913e-fa2044e9756c"
+      "A:0d710bb3-6925-4cdf-913e-fa2044e9756c",
+      "B:fc2a657e-2367-428f-bca2-c83f781cb7a9"
     ],
     "stage": "A_B",
     "stopped": ""
