@@ -20,12 +20,12 @@
         "issue": 6,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "produce",
-        "pending_role": "A",
-        "review": "未找到 SPEC.md 文件。根據協議要求，應存在 SPEC.md 文件用於定義 CSV 統計 CLI 工具的規格。在當前工作目錄及其子目錄中均未發現該文件。因此無法進行後續的逐項檢查。",
-        "sha": "b20b44f4589723b9d7315505d5e1df6a2a8fba13",
+        "pending_action": "review",
+        "pending_role": "B",
+        "review": "",
+        "sha": "9fe46367ce14a79a3911b2601c732079bd1ca399",
         "stage": "A_B",
-        "status": "待補件"
+        "status": "待檢查"
       },
       "B_C": {
         "agreed": [],
@@ -88,7 +88,8 @@
       "A:7c93c615-e18e-4d19-92a9-12a47bea1f2b",
       "B:a9266e10-dd14-44f6-bc77-9242ad9ed7bf",
       "A:c2c45952-ab16-42ae-9924-fad3e3b6ee1d",
-      "B:17644a84-368e-4195-9bea-4973cf7e1622"
+      "B:17644a84-368e-4195-9bea-4973cf7e1622",
+      "A:12f55010-410e-45e1-a2c9-f658c4725690"
     ],
     "stage": "A_B",
     "stopped": ""
