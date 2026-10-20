@@ -8,17 +8,17 @@
     "handoffs": {
       "A_B": {
         "agreed": [],
-        "agreement": "",
+        "agreement": "交付範圍：Python標準函式庫CSV統計CLI工具，處理包含category、amount欄位的CSV檔案。\n\n驗收條件：\n1. 正常運作：輸入有效CSV，正確計算總筆數、總金額、分類統計\n2. 負金額處理：支援負數金額計算\n3. 空白分類處理：將空白分類歸類為'UNKNOWN'\n4. 錯誤處理：\n   - 只有標頭：返回空結果\n   - 缺欄位：拋出FieldError異常\n   - 非法金額：拋出ValueError異常\n5. 數據格式：\n   - amount使用Decimal類型，精確到分（2位小數）\n   - 輸出JSON格式，包含total_count, total_amount, category_stats\n\n依據資料：\n- category欄位：文字型態\n- amount欄位：數值型態，使用Decimal處理精確度\n- 輸出格式：{\"total_count\": int, \"total_amount\": Decimal, \"category_stats\": {\"category\": {\"count\": int, \"amount\": Decimal}}}\n\n範例輸入：\n```\ncategory,amount\n食品,100.50\n交通,200.00\n食品,-50.25\n```\n\n範例輸出：\n```\n{\"total_count\": 3, \"total_amount\": 250.25, \"category_stats\": {\"食品\": {\"count\": 2, \"amount\": 50.25}, \"交通\": {\"count\": 1, \"amount\": 200.00}}}\n```",
         "agreement_version": 1,
         "amendments": 0,
         "attempt": 0,
         "blocked_action": "",
         "blocked_role": "",
-        "issue": null,
+        "issue": 6,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "propose",
-        "pending_role": "A",
+        "pending_action": "agree",
+        "pending_role": "B",
         "review": "",
         "sha": "",
         "stage": "A_B",
@@ -68,7 +68,8 @@
       "A:b9b97c1f-e791-4c32-9eb9-10e2d2f5ea7e",
       "A:f7a0ac54-e5f2-4e2e-8cee-135e50f0a81f",
       "A:ecb6f5bd-f50c-4641-8041-ff8947bac137",
-      "A:e6fc74c9-a7a1-49f3-b8d9-ab4eff18111b"
+      "A:e6fc74c9-a7a1-49f3-b8d9-ab4eff18111b",
+      "A:18dfe1da-b4d5-41b7-9859-aaade3569a71"
     ],
     "stage": "A_B",
     "stopped": ""
