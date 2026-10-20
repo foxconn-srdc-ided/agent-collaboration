@@ -20,6 +20,29 @@ class ControllerTests(unittest.TestCase):
             controller.handle(self.runs, {"inputs": {"mode": "start", "human": ""}}, "workflow_dispatch")
         self.assertEqual(self.runs["run-123"].human, "ycliu-dev")
 
+    def test_human_grant_restores_one_a_attempt_on_same_run(self):
+        h = self.run.handoffs["A_B"]
+        h.issue = 1
+        h.status = "阻塞"
+        h.attempt = 5
+        self.run.fixes["A"] = 3
+        self.run.stopped = "A 修正額度耗盡"
+        comments = json.dumps([[{"user": {"login": "reviewer"},
+                                 "body": "授權在原 run 額外增加 A 一次修正額度"}]])
+        event = {"inputs": {"mode": "grant_a_fix", "run_id": "run-1"},
+                 "sender": {"login": "reviewer"}}
+        with patch.object(controller, "gh", return_value=comments), \
+             patch.object(controller, "comment"), patch.object(controller, "label"), \
+             patch.object(controller, "dispatch") as dispatch:
+            controller.handle(self.runs, event, "workflow_dispatch")
+            dispatch.assert_called_once()
+            with self.assertRaisesRegex(Exception, "只可對本次"):
+                controller.handle(self.runs, event, "workflow_dispatch")
+        self.assertEqual(self.run.extra_fixes["A"], 1)
+        self.assertEqual(h.attempt, 6)
+        self.assertEqual(h.status, "待補件")
+        self.assertFalse(self.run.stopped)
+
     def test_dispatch_payload_has_one_top_level_property(self):
         with patch.object(controller, "gh") as gh:
             controller.dispatch("A", "propose", self.run, "A_B")

@@ -46,6 +46,16 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(self.run.handoffs["A_B"].status, "阻塞")
         self.assertTrue(self.run.stopped)
 
+    def test_one_explicit_extra_fix_still_has_a_limit(self):
+        self.run.extra_fixes["A"] = 1
+        self.run.agree("A_B", "A", 1)
+        self.run.agree("A_B", "B", 1)
+        for attempt in range(1, 5):
+            self.run.submit("A_B", "A", SHA, attempt, "passed")
+            self.run.review_result("A_B", "B", SHA, attempt, False, "failure")
+        self.assertEqual(self.run.fixes["A"], 4)
+        self.assertEqual(self.run.handoffs["A_B"].status, "阻塞")
+
     def test_round_trip(self):
         self.assertEqual(Run.from_dict(self.run.as_dict()).as_dict(), self.run.as_dict())
 

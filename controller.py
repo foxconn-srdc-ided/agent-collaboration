@@ -125,6 +125,29 @@ def next_stage(run: Run, stage: str) -> None:
 def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs", {})
+        if inputs.get("mode") == "grant_a_fix":
+            run = runs[inputs["run_id"]]
+            h = run.handoffs["A_B"]
+            if (event["sender"]["login"] != run.human or run.stage != "A_B" or
+                    run.stopped != "A 修正額度耗盡" or h.status != "阻塞" or
+                    run.fixes["A"] != 3 or run.extra_fixes["A"] != 0 or
+                    h.pending_action or h.pending_role):
+                raise FlowError("只可對本次 A 修正額度耗盡特准一次")
+            pages = json.loads(gh("api", f"repos/{CENTRE}/issues/{h.issue}/comments", "--paginate", "--slurp"))
+            comments = [item for page in pages for item in page]
+            if not comments or comments[-1]["user"]["login"] != run.human or \
+                    comments[-1]["body"].strip() != "授權在原 run 額外增加 A 一次修正額度":
+                raise FlowError("需指定人工在原交付卡明確授權")
+            run.extra_fixes["A"] = 1
+            run.stopped = ""
+            h.status = "待補件"
+            h.attempt += 1
+            comment(h.issue, "指定人工已特准 A 額外一次修正；沿用原 run、協議 v3 與本卡。")
+            label(h.issue, h.status)
+            dispatch("A", "produce", run, "A_B", feedback=(
+                "SPEC.md 必須有至少兩筆資料的正常 CSV 輸入及對應可解析 JSON 輸出範例；"
+                "所有標成 JSON 的區塊都須可解析，並保留已定義的 stderr 錯誤文字與退出碼。"))
+            return
         if inputs.get("mode") == "retry_invalid_amend":
             run = runs[inputs["run_id"]]
             h = run.handoffs["A_B"]

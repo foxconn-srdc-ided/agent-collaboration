@@ -46,6 +46,7 @@ class Run:
     stage: str = "A_B"
     handoffs: dict[str, Handoff] = field(default_factory=dict)
     fixes: dict[str, int] = field(default_factory=lambda: {"A": 0, "B": 0, "C": 0})
+    extra_fixes: dict[str, int] = field(default_factory=lambda: {"A": 0, "B": 0, "C": 0})
     stopped: str = ""
     seen: list[str] = field(default_factory=list)
 
@@ -156,7 +157,7 @@ class Run:
         self.fixes[actor] += 1
         h.passed_sha = ""
         h.passed_at = ""
-        if self.fixes[actor] > 2:
+        if self.fixes[actor] > 2 + self.extra_fixes[actor]:
             h.status = "阻塞"
             self.stopped = f"{actor} 修正額度耗盡"
         else:
@@ -187,7 +188,7 @@ class Run:
         if h.status != "執行中" or not reason.strip():
             raise FlowError("此時不可申報上游缺陷")
         self.fixes["B"] += 1
-        if self.fixes["B"] > 2:
+        if self.fixes["B"] > 2 + self.extra_fixes["B"]:
             h.status = "阻塞"
             self.stopped = "B 修正額度耗盡"
             return None
