@@ -43,12 +43,12 @@
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "agree",
-        "pending_role": "C",
+        "pending_action": "",
+        "pending_role": "",
         "review": "",
         "sha": "",
         "stage": "B_C",
-        "status": "協議中"
+        "status": "阻塞"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -103,9 +103,10 @@
       "B:3e4eceab-8923-4c3a-9007-e3d12986b8e2",
       "C:11b44588-122e-452b-b3e2-7248d03bb68a",
       "B:c27b3ed0-b3ed-4e22-8b00-ceb6c786bf9f",
-      "B:7b2a1829-d5f1-4abf-a31c-61d6dabace70"
+      "B:7b2a1829-d5f1-4abf-a31c-61d6dabace70",
+      "C:20c85a41-d2dd-4a5d-b0ef-f9fc9681683e"
     ],
     "stage": "B_C",
-    "stopped": ""
+    "stopped": "改約無共識，等待人工裁決"
   }
 }
