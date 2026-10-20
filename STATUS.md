@@ -1,7 +1,9 @@
 # PoC 狀態（2026-10-20）
 
-四個 public repo 已建立，角色 Actions、交付控制器、兩種 Issue 範本、標籤及 `poc-state` 分支已部署。本機 12 項測試通過，涵蓋三段交付模擬、准收防重、退件、改約與 B 缺陷修正。三張圖是設計示意。
+四個 public repo 已建立，角色 Actions、交付控制器、兩種 Issue 範本、標籤及 `poc-state` 分支已部署。本機控制器 15 項及各角色 2 項測試通過。三張圖是設計示意。
 
-已改用個人 token 方案；`CROSS_REPO_TOKEN` 已設為只供四個 repo 使用的組織 Actions Secret。`MODEL_STUDIO_API_KEY` 與新加坡 base URL 尚未提供，故真實 OpenCode smoke、模型交接與人工准收尚未執行。沒有可引用的真實 run、交付 Issue、成果 SHA 或成功 Actions 紀錄。不可將本機模擬視為端到端驗收。
+已改用個人 token 方案；`CROSS_REPO_TOKEN` 僅供四個 repo，`MODEL_STUDIO_API_KEY` 與新加坡 base URL 僅供 A/B/C。三個模型 smoke 成功：[A](https://github.com/foxconn-srdc-ided/agent-a/actions/runs/39399063253)、[B](https://github.com/foxconn-srdc-ided/agent-b/actions/runs/39399165212)、[C](https://github.com/foxconn-srdc-ided/agent-c/actions/runs/39399168799)。
 
-接續順序：指定人工提供 Model Studio key 與完整新加坡 base URL（或執行 [`setup-human.sh`](setup-human.sh)）；先在 [A](https://github.com/foxconn-srdc-ided/agent-a/actions)、[B](https://github.com/foxconn-srdc-ided/agent-b/actions)、[C](https://github.com/foxconn-srdc-ided/agent-c/actions) 執行 smoke，核對模型、串流與工具呼叫；再由 [協作中心](https://github.com/foxconn-srdc-ided/agent-collaboration/actions/workflows/flow.yml) 明確手動 start。依卡片在每棒由指定人工准收。真實整輪成功後才更新 submodule 與本頁證據連結。
+真實 run [`run-39399553395`](https://github.com/foxconn-srdc-ided/agent-collaboration/actions/runs/39399553395) 已走到第一張 [A → B 交付卡 #6](https://github.com/foxconn-srdc-ided/agent-collaboration/issues/6) 的「待人工驗收」。A 成果為固定 [SHA `da3af81b6de6256f61caa7e2f1ec6b749c873526`](https://github.com/foxconn-srdc-ided/agent-a/commit/da3af81b6de6256f61caa7e2f1ec6b749c873526)，B 已回報通過。檢視固定 SHA 發現規格的 JSON 範例含未加引號的 `int`／`Decimal`，且「只有標頭回傳空結果」沒有定義確切 JSON；這兩點需由指定人工在卡片修約或退件，不應直接准收。
+
+未完成 B、C 交接、整輪人工准收與 submodule 更新；不可宣稱端到端完成。待指定人工於 #6 留言後，控制器會在原 run 繼續。

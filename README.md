@@ -24,4 +24,6 @@ Agent/API 失敗或修正額度耗盡會停在阻塞；不得用新 run 重置�
 
 需要人工提供阿里雲資料時，在本 repo 執行 `bash setup-human.sh`。精靈安全輸入 API key 並設定三個角色 repo；不把密鑰寫入 Issue 或 repo。GitHub token 由已登入的 `gh` 設定，不需貼出。完成後分別手動執行 A/B/C 的 Agent workflow `mode=smoke`，檢查模型連線與串流事件。
 
+角色工作先呼叫固定版本 OpenCode；若模型回覆無法形成所需 JSON，使用同一個 Model Studio 模型與端點的 JSON 模式備援，Actions 紀錄會明示切換。模型輸出仍須經固定檢查與人工准收。
+
 檢查：`python3 -m unittest -v`。相關正式證據以 run 的 Issue、Actions run 和成果 SHA 連結為準；示意圖非真實紀錄。
