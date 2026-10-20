@@ -2,7 +2,7 @@
   "run-39399553395": {
     "extra_fixes": {
       "A": 1,
-      "B": 0,
+      "B": 1,
       "C": 0
     },
     "fixes": {
@@ -40,18 +40,18 @@
         "agreement": "交付範圍：B 依 agent-a 固定 SHA 6c501ce430286a48d1df70a561a22b6faa268230 的 SPEC.md，交付 csv_stats.py、test_csv_stats.py、README.md；僅使用 Python 標準函式庫。驗收條件：CLI 讀取含 category、amount 欄位的 CSV，以 Decimal 運算，輸出含 total_count、total_amount、category_stats 的可解析 JSON；所有金額為兩位小數字串。空白分類歸 UNKNOWN，負金額正確計算；只有標頭時輸出 {\"total_count\":0,\"total_amount\":\"0.00\",\"category_stats\":{}}。缺欄位時 stderr 輸出「錯誤：CSV 檔案缺少必要欄位。」、退出碼 1；非法金額時 stderr 輸出「錯誤：金額格式無效。」、退出碼 1。test_csv_stats.py 須驗證正常、負金額、只有標頭、缺欄位、空白分類、非法金額六種情境並可執行通過。C 應依上述固定 SPEC.md 與 B 的固定交付 SHA 逐項審查。",
         "agreement_version": 4,
         "amendments": 2,
-        "attempt": 3,
+        "attempt": 4,
         "blocked_action": "",
         "blocked_role": "",
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "",
-        "pending_role": "",
+        "pending_action": "produce",
+        "pending_role": "B",
         "review": "1. 格式：符合 SPEC.md 規定，使用 Python 標準函式庫，輸出 JSON 格式包含 total_count、total_amount、category_stats。\n2. 精度：使用 Decimal 進行運算，金額以兩位小數字串形式輸出。\n3. 範例：提供正常、負金額、只有標頭、缺欄位、空白分類、非法金額六種測試案例，符合 SPEC.md 要求。\n4. 錯誤行為：缺欄位時輸出 stderr「錯誤：CSV 檔案缺少必要欄位。」並退出碼 1；非法金額時輸出 stderr「錯誤：金額格式無效。」並退出碼 1。\n5. 功能實現：csv_stats.py 正確處理空白分類為 UNKNOWN，負金額正確計算，只有標頭時輸出預期 JSON。\n6. 測試覆蓋：test_csv_stats.py 包含所有六種情境測試，可執行通過。\n7. 文件正確性：README.md 正確描述使用方式、輸出格式、特殊處理與錯誤處理。\n固定測試 exit=0:\ntest_empty_category (test_csv_stats.TestCSVStats.test_empty_category) ... ok\ntest_invalid_amount (test_csv_stats.TestCSVStats.test_invalid_amount) ... ok\ntest_missing_field (test_csv_stats.TestCSVStats.test_missing_field) ... ok\ntest_negative_amount (test_csv_stats.TestCSVStats.test_negative_amount) ... ok\ntest_normal_case (test_csv_stats.TestCSVStats.test_normal_case) ... ok\ntest_only_header (test_csv_stats.TestCSVStats.test_only_header) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.132s\n\nOK\n\n獨立 CLI JSON 檢查未通過：正常樣本須 exit=0 並輸出可解析、與固定規格相符的 JSON；目前 exit=0，stdout 非 JSON。\nB 測試使用 eval() 解析 Python repr，未驗證 CLI 輸出為 JSON。",
         "sha": "7261a38c1fa3f5b2a57f6caca6db7f2849186434",
         "stage": "B_C",
-        "status": "阻塞"
+        "status": "待補件"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -118,6 +118,6 @@
       "C:5cde84f8-384d-428e-8f0f-2259bca10bc4"
     ],
     "stage": "B_C",
-    "stopped": "B 修正額度耗盡"
+    "stopped": ""
   }
 }
