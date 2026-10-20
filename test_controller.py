@@ -67,6 +67,35 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(h.status, "待補件")
         self.assertFalse(self.run.stopped)
 
+    def test_second_b_grant_requires_new_human_comment(self):
+        self.run.stage = "B_C"
+        h = self.run.handoffs["B_C"]
+        h.issue = 7
+        h.status = "阻塞"
+        h.attempt = 4
+        self.run.fixes["B"] = 4
+        self.run.extra_fixes["B"] = 1
+        self.run.stopped = "B 修正額度耗盡"
+        event = {"inputs": {"mode": "grant_b_fix", "run_id": "run-1"},
+                 "sender": {"login": "reviewer"}}
+        old = json.dumps([[{"user": {"login": "reviewer"},
+                            "body": "授權在原 run 額外增加 B 一次修正額度"}]])
+        new = json.dumps([[{"user": {"login": "reviewer"},
+                            "body": "授權在原 run 再增加 B 一次修正額度"}]])
+        with patch.object(controller, "gh", return_value=old), \
+             patch.object(controller, "comment"), patch.object(controller, "label"), \
+             patch.object(controller, "dispatch") as dispatch:
+            with self.assertRaisesRegex(Exception, "明確授權"):
+                controller.handle(self.runs, event, "workflow_dispatch")
+            dispatch.assert_not_called()
+        with patch.object(controller, "gh", return_value=new), \
+             patch.object(controller, "comment"), patch.object(controller, "label"), \
+             patch.object(controller, "dispatch") as dispatch:
+            controller.handle(self.runs, event, "workflow_dispatch")
+            dispatch.assert_called_once()
+        self.assertEqual(self.run.extra_fixes["B"], 2)
+        self.assertEqual(h.attempt, 5)
+
     def test_retries_scope_error_after_human_arbitration_without_new_version(self):
         self.run.stage = "B_C"
         h = self.run.handoffs["B_C"]
