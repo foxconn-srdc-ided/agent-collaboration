@@ -7,7 +7,7 @@
     },
     "fixes": {
       "A": 3,
-      "B": 1,
+      "B": 2,
       "C": 0
     },
     "handoffs": {
@@ -40,7 +40,7 @@
         "agreement": "交付範圍：B 依 agent-a 固定 SHA 6c501ce430286a48d1df70a561a22b6faa268230 的 SPEC.md，交付 csv_stats.py、test_csv_stats.py、README.md；僅使用 Python 標準函式庫。驗收條件：CLI 讀取含 category、amount 欄位的 CSV，以 Decimal 運算，輸出含 total_count、total_amount、category_stats 的可解析 JSON；所有金額為兩位小數字串。空白分類歸 UNKNOWN，負金額正確計算；只有標頭時輸出 {\"total_count\":0,\"total_amount\":\"0.00\",\"category_stats\":{}}。缺欄位時 stderr 輸出「錯誤：CSV 檔案缺少必要欄位。」、退出碼 1；非法金額時 stderr 輸出「錯誤：金額格式無效。」、退出碼 1。test_csv_stats.py 須驗證正常、負金額、只有標頭、缺欄位、空白分類、非法金額六種情境並可執行通過。C 應依上述固定 SPEC.md 與 B 的固定交付 SHA 逐項審查。",
         "agreement_version": 4,
         "amendments": 2,
-        "attempt": 2,
+        "attempt": 3,
         "blocked_action": "",
         "blocked_role": "",
         "issue": 7,
@@ -111,7 +111,8 @@
       "C:c678317d-4abb-400e-8868-63cb989a449e",
       "C:8ce6a4bc-462c-41fe-a8a8-b084379a53fe",
       "B:e46d7dc2-ef04-4904-bef9-6bf6d90a3731",
-      "B:7fe2fd61-1714-4654-9bc2-16fc114d2eac"
+      "B:7fe2fd61-1714-4654-9bc2-16fc114d2eac",
+      "B:5e16266c-55e0-4612-b997-8eb518fb07c3"
     ],
     "stage": "B_C",
     "stopped": ""
