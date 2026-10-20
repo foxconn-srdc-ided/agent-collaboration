@@ -1,1 +1,70 @@
-{}
+{
+  "run-39399553395": {
+    "fixes": {
+      "A": 0,
+      "B": 0,
+      "C": 0
+    },
+    "handoffs": {
+      "A_B": {
+        "agreed": [],
+        "agreement": "",
+        "agreement_version": 1,
+        "amendments": 0,
+        "attempt": 0,
+        "blocked_action": "",
+        "blocked_role": "",
+        "issue": null,
+        "passed_at": "",
+        "passed_sha": "",
+        "pending_action": "propose",
+        "pending_role": "A",
+        "review": "",
+        "sha": "",
+        "stage": "A_B",
+        "status": "協議中"
+      },
+      "B_C": {
+        "agreed": [],
+        "agreement": "",
+        "agreement_version": 1,
+        "amendments": 0,
+        "attempt": 0,
+        "blocked_action": "",
+        "blocked_role": "",
+        "issue": null,
+        "passed_at": "",
+        "passed_sha": "",
+        "pending_action": "",
+        "pending_role": "",
+        "review": "",
+        "sha": "",
+        "stage": "B_C",
+        "status": "協議中"
+      },
+      "C_HUMAN": {
+        "agreed": [],
+        "agreement": "",
+        "agreement_version": 1,
+        "amendments": 0,
+        "attempt": 0,
+        "blocked_action": "",
+        "blocked_role": "",
+        "issue": null,
+        "passed_at": "",
+        "passed_sha": "",
+        "pending_action": "",
+        "pending_role": "",
+        "review": "",
+        "sha": "",
+        "stage": "C_HUMAN",
+        "status": "協議中"
+      }
+    },
+    "human": "ycliu-dev",
+    "run_id": "run-39399553395",
+    "seen": [],
+    "stage": "A_B",
+    "stopped": ""
+  }
+}
