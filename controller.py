@@ -125,6 +125,19 @@ def next_stage(run: Run, stage: str) -> None:
 def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs", {})
+        if inputs.get("mode") == "recheck_b_json":
+            run = runs[inputs["run_id"]]
+            h = run.handoffs["B_C"]
+            if (event["sender"]["login"] != run.human or run.stage != "B_C" or run.stopped or
+                    h.status != "待人工驗收" or h.sha != "7261a38c1fa3f5b2a57f6caca6db7f2849186434" or
+                    h.passed_sha != h.sha or h.pending_action or h.pending_role):
+                raise FlowError("只可重驗本次未實際解析 JSON 的 B 固定 SHA")
+            h.passed_sha = h.passed_at = h.review = ""
+            h.status = "待檢查"
+            comment(h.issue, "先前 C 僅重跑使用 eval() 的 B 測試，未驗證 stdout 是 JSON；撤銷該次通過，對同一固定 SHA 加入獨立 JSON 解析後重審。")
+            label(h.issue, h.status)
+            dispatch("C", "review", run, "B_C", source_repo="agent-b")
+            return
         if inputs.get("mode") == "retry_arbitration_agree":
             run = runs[inputs["run_id"]]
             h = run.handoffs["B_C"]

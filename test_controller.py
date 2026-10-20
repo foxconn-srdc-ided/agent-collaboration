@@ -66,6 +66,23 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(h.status, "協議中")
         self.assertFalse(self.run.stopped)
 
+    def test_rechecks_same_b_sha_before_human_acceptance(self):
+        self.run.stage = "B_C"
+        h = self.run.handoffs["B_C"]
+        h.issue = 7
+        h.status = "待人工驗收"
+        h.sha = h.passed_sha = "7261a38c1fa3f5b2a57f6caca6db7f2849186434"
+        h.passed_at = "2026-10-20T12:00:00Z"
+        event = {"inputs": {"mode": "recheck_b_json", "run_id": "run-1"},
+                 "sender": {"login": "reviewer"}}
+        with patch.object(controller, "comment"), patch.object(controller, "label"), \
+             patch.object(controller, "dispatch") as dispatch:
+            controller.handle(self.runs, event, "workflow_dispatch")
+            dispatch.assert_called_once_with("C", "review", self.run, "B_C", source_repo="agent-b")
+        self.assertEqual(h.sha, "7261a38c1fa3f5b2a57f6caca6db7f2849186434")
+        self.assertEqual(h.status, "待檢查")
+        self.assertFalse(h.passed_sha)
+
     def test_dispatch_payload_has_one_top_level_property(self):
         with patch.object(controller, "gh") as gh:
             controller.dispatch("A", "propose", self.run, "A_B")
