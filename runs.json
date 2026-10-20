@@ -7,7 +7,7 @@
     },
     "fixes": {
       "A": 3,
-      "B": 2,
+      "B": 3,
       "C": 0
     },
     "handoffs": {
@@ -46,12 +46,12 @@
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "review",
-        "pending_role": "C",
-        "review": "",
+        "pending_action": "",
+        "pending_role": "",
+        "review": "1. 格式：符合 SPEC.md 規定，使用 Python 標準函式庫，輸出 JSON 格式包含 total_count、total_amount、category_stats。\n2. 精度：使用 Decimal 進行運算，金額以兩位小數字串形式輸出。\n3. 範例：提供正常、負金額、只有標頭、缺欄位、空白分類、非法金額六種測試案例，符合 SPEC.md 要求。\n4. 錯誤行為：缺欄位時輸出 stderr「錯誤：CSV 檔案缺少必要欄位。」並退出碼 1；非法金額時輸出 stderr「錯誤：金額格式無效。」並退出碼 1。\n5. 功能實現：csv_stats.py 正確處理空白分類為 UNKNOWN，負金額正確計算，只有標頭時輸出預期 JSON。\n6. 測試覆蓋：test_csv_stats.py 包含所有六種情境測試，可執行通過。\n7. 文件正確性：README.md 正確描述使用方式、輸出格式、特殊處理與錯誤處理。\n固定測試 exit=0:\ntest_empty_category (test_csv_stats.TestCSVStats.test_empty_category) ... ok\ntest_invalid_amount (test_csv_stats.TestCSVStats.test_invalid_amount) ... ok\ntest_missing_field (test_csv_stats.TestCSVStats.test_missing_field) ... ok\ntest_negative_amount (test_csv_stats.TestCSVStats.test_negative_amount) ... ok\ntest_normal_case (test_csv_stats.TestCSVStats.test_normal_case) ... ok\ntest_only_header (test_csv_stats.TestCSVStats.test_only_header) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.132s\n\nOK\n\n獨立 CLI JSON 檢查未通過：正常樣本須 exit=0 並輸出可解析、與固定規格相符的 JSON；目前 exit=0，stdout 非 JSON。\nB 測試使用 eval() 解析 Python repr，未驗證 CLI 輸出為 JSON。",
         "sha": "7261a38c1fa3f5b2a57f6caca6db7f2849186434",
         "stage": "B_C",
-        "status": "待檢查"
+        "status": "阻塞"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -114,9 +114,10 @@
       "B:7fe2fd61-1714-4654-9bc2-16fc114d2eac",
       "B:5e16266c-55e0-4612-b997-8eb518fb07c3",
       "B:5bd8ba1f-c009-4652-84ff-5511f34e4ca5",
-      "C:416d06d9-b39b-433e-822c-749e8d4f253d"
+      "C:416d06d9-b39b-433e-822c-749e8d4f253d",
+      "C:5cde84f8-384d-428e-8f0f-2259bca10bc4"
     ],
     "stage": "B_C",
-    "stopped": ""
+    "stopped": "B 修正額度耗盡"
   }
 }
