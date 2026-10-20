@@ -20,12 +20,12 @@
         "issue": 6,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "produce",
-        "pending_role": "A",
+        "pending_action": "review",
+        "pending_role": "B",
         "review": "",
-        "sha": "",
+        "sha": "da3af81b6de6256f61caa7e2f1ec6b749c873526",
         "stage": "A_B",
-        "status": "執行中"
+        "status": "待檢查"
       },
       "B_C": {
         "agreed": [],
@@ -74,7 +74,8 @@
       "A:e6fc74c9-a7a1-49f3-b8d9-ab4eff18111b",
       "A:18dfe1da-b4d5-41b7-9859-aaade3569a71",
       "B:5973e9a4-6420-4c9a-9940-6a8b4c834a35",
-      "A:7655c312-2110-424b-bb8d-a748b9d4056b"
+      "A:7655c312-2110-424b-bb8d-a748b9d4056b",
+      "A:0938ebed-19b6-4888-86d7-182d1ec1c214"
     ],
     "stage": "A_B",
     "stopped": ""
