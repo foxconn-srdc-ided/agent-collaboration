@@ -43,8 +43,8 @@
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "agree",
-        "pending_role": "C",
+        "pending_action": "amend",
+        "pending_role": "B",
         "review": "",
         "sha": "",
         "stage": "B_C",
@@ -98,7 +98,8 @@
       "B:976f6d46-7c49-4589-881f-0e66f40e8849",
       "A:0d710bb3-6925-4cdf-913e-fa2044e9756c",
       "B:fc2a657e-2367-428f-bca2-c83f781cb7a9",
-      "B:3861a6e8-2559-49c3-9c72-687237d1f2c4"
+      "B:3861a6e8-2559-49c3-9c72-687237d1f2c4",
+      "C:ca2b762f-f4ec-4937-9a6a-1cf7aeaba373"
     ],
     "stage": "B_C",
     "stopped": ""
