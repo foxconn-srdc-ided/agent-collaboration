@@ -125,6 +125,30 @@ def next_stage(run: Run, stage: str) -> None:
 def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs", {})
+        if inputs.get("mode") == "grant_b_fix":
+            run = runs[inputs["run_id"]]
+            h = run.handoffs["B_C"]
+            if (event["sender"]["login"] != run.human or run.stage != "B_C" or
+                    run.stopped != "B 修正額度耗盡" or h.status != "阻塞" or
+                    run.fixes["B"] != 3 or run.extra_fixes["B"] != 0 or
+                    h.pending_action or h.pending_role):
+                raise FlowError("只可對本次 B 修正額度耗盡特准一次")
+            pages = json.loads(gh("api", f"repos/{CENTRE}/issues/{h.issue}/comments", "--paginate", "--slurp"))
+            comments = [item for page in pages for item in page]
+            if not comments or comments[-1]["user"]["login"] != run.human or \
+                    comments[-1]["body"].strip() != "授權在原 run 額外增加 B 一次修正額度":
+                raise FlowError("需指定人工在原交付卡明確授權 B 額外修正")
+            run.extra_fixes["B"] = 1
+            run.stopped = ""
+            h.status = "待補件"
+            h.attempt += 1
+            comment(h.issue, "指定人工已特准 B 額外一次修正；沿用原 run、協議 v4 與本卡。")
+            label(h.issue, h.status)
+            dispatch("B", "produce", run, "B_C", feedback=(
+                "C 獨立執行固定 SHA 發現 stdout 是 Python dict repr、不是 JSON；"
+                "csv_stats.py 必須用 json.dumps 輸出，test_csv_stats.py 必須以 json.loads 驗證六種案例，"
+                "不可再用 eval；保持裁決中的 stderr 文字與退出碼。"))
+            return
         if inputs.get("mode") == "recheck_b_json":
             run = runs[inputs["run_id"]]
             h = run.handoffs["B_C"]

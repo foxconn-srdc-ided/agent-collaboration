@@ -43,6 +43,30 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(h.status, "待補件")
         self.assertFalse(self.run.stopped)
 
+    def test_human_grant_restores_one_b_attempt_on_same_run(self):
+        self.run.stage = "B_C"
+        h = self.run.handoffs["B_C"]
+        h.issue = 7
+        h.status = "阻塞"
+        h.attempt = 3
+        self.run.fixes["B"] = 3
+        self.run.stopped = "B 修正額度耗盡"
+        comments = json.dumps([[{"user": {"login": "reviewer"},
+                                 "body": "授權在原 run 額外增加 B 一次修正額度"}]])
+        event = {"inputs": {"mode": "grant_b_fix", "run_id": "run-1"},
+                 "sender": {"login": "reviewer"}}
+        with patch.object(controller, "gh", return_value=comments), \
+             patch.object(controller, "comment"), patch.object(controller, "label"), \
+             patch.object(controller, "dispatch") as dispatch:
+            controller.handle(self.runs, event, "workflow_dispatch")
+            dispatch.assert_called_once()
+            with self.assertRaisesRegex(Exception, "只可對本次"):
+                controller.handle(self.runs, event, "workflow_dispatch")
+        self.assertEqual(self.run.extra_fixes["B"], 1)
+        self.assertEqual(h.attempt, 4)
+        self.assertEqual(h.status, "待補件")
+        self.assertFalse(self.run.stopped)
+
     def test_retries_scope_error_after_human_arbitration_without_new_version(self):
         self.run.stage = "B_C"
         h = self.run.handoffs["B_C"]
