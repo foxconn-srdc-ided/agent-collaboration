@@ -12,17 +12,17 @@
         "agreement_version": 1,
         "amendments": 0,
         "attempt": 0,
-        "blocked_action": "propose",
-        "blocked_role": "A",
+        "blocked_action": "",
+        "blocked_role": "",
         "issue": null,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "",
-        "pending_role": "",
+        "pending_action": "propose",
+        "pending_role": "A",
         "review": "",
         "sha": "",
         "stage": "A_B",
-        "status": "阻塞"
+        "status": "協議中"
       },
       "B_C": {
         "agreed": [],
@@ -70,6 +70,6 @@
       "A:ecb6f5bd-f50c-4641-8041-ff8947bac137"
     ],
     "stage": "A_B",
-    "stopped": "A 工具或 API 失敗：Model returned no JSON"
+    "stopped": ""
   }
 }
