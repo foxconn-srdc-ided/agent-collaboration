@@ -106,8 +106,24 @@ def next_stage(run: Run, stage: str) -> None:
 def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs", {})
+        if inputs.get("mode") == "resume":
+            run = runs[inputs["run_id"]]
+            if event["sender"]["login"] != run.human or not run.stopped:
+                raise FlowError("只有指定人工可恢復暫停的 run")
+            h = run.handoffs[run.stage]
+            if not h.blocked_action:
+                raise FlowError("此阻塞需要人工裁決或明確修改額度")
+            action, role = h.blocked_action, h.blocked_role
+            h.blocked_action = h.blocked_role = ""
+            run.stopped = ""
+            h.status = ("協議中" if action in {"propose", "amend", "agree"} else
+                        "待檢查" if action == "review" else "執行中")
+            if h.issue:
+                label(h.issue, h.status)
+            dispatch(role, action, run, run.stage)
+            return
         if inputs.get("mode") != "start":
-            raise FlowError("僅支援明確手動 start；恢復須使用受控事件")
+            raise FlowError("未知手動模式")
         human = inputs.get("human", "").strip()
         run_id = f"run-{os.environ['GITHUB_RUN_ID']}"
         if run_id in runs:
@@ -160,6 +176,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             label(h.issue, h.status)
             dispatch(PARTIES[stage][1], "agree", run, stage)
         elif action == "produce":
+            gh("api", f"repos/{ORG}/{ROLE_REPO[role]}/git/commits/{p['sha']}")
             if stage == "C_HUMAN":
                 run.submit_final(p["sha"], p["attempt"], p["text"])
             else:
@@ -177,10 +194,16 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             if not p["passed"] and not run.stopped:
                 dispatch(PARTIES[stage][0], "produce", run, stage, feedback=p["text"])
         elif action == "failed":
+            h.blocked_action = p.get("failed_action", "")
+            h.blocked_role = role
             h.status = "阻塞"
             run.stopped = f"{role} 工具或 API 失敗：{p['text']}"
-            comment(h.issue, run.stopped)
-            label(h.issue, h.status)
+            if h.issue:
+                comment(h.issue, run.stopped)
+                label(h.issue, h.status)
+            else:
+                gh("issue", "create", "-R", CENTRE, "--title", f"[工作] {run.run_id} 啟動阻塞",
+                   "--body", run.stopped, "--label", "工作", "--label", "阻塞")
         elif action == "selfcheck_failed":
             h.status = "待補件"
             run.fix(stage, role, p["text"])
@@ -202,8 +225,34 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             return
         actor = event["comment"]["user"]["login"]
         body = event["comment"]["body"].strip()
-        h = run.current(stage)
         if actor != run.human:
+            return
+        h = run.handoffs[stage]
+        if body.startswith("/resolve ") and run.stopped.startswith("改約無共識"):
+            h.agreement_version += 1
+            h.agreement = body[9:].strip()
+            h.agreed = []
+            h.status = "協議中"
+            run.stopped = ""
+            comment(issue, f"人工裁決為協議 v{h.agreement_version}，雙方仍須同意：\n{h.agreement}")
+            label(issue, h.status)
+            dispatch(PARTIES[stage][1], "agree", run, stage)
+            return
+        if body == "/resume" and run.stopped and h.blocked_action:
+            action, role = h.blocked_action, h.blocked_role
+            h.blocked_action = h.blocked_role = ""
+            run.stopped = ""
+            h.status = ("協議中" if action in {"propose", "amend", "agree"} else
+                        "待檢查" if action == "review" else "執行中")
+            label(issue, h.status)
+            dispatch(role, action, run, stage)
+            return
+        h = run.current(stage)
+        if body.startswith("/amend ") and h.amendments < 2:
+            h.status = "協議中"
+            h.passed_sha = ""
+            label(issue, h.status)
+            dispatch(PARTIES[stage][0], "amend", run, stage, feedback=body[7:])
             return
         if stage == "C_HUMAN" and body == f"/agree v{h.agreement_version}":
             ready = run.agree(stage, "HUMAN", h.agreement_version)

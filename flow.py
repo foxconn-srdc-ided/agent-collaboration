@@ -28,6 +28,8 @@ class Handoff:
     passed_sha: str = ""
     attempt: int = 0
     review: str = ""
+    blocked_action: str = ""
+    blocked_role: str = ""
 
 
 @dataclass

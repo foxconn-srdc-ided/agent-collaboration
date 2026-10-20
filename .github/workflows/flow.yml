@@ -3,13 +3,17 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Explicit start
+        description: Explicit start or resume after tool failure
         required: true
         type: choice
-        options: [start]
+        options: [start, resume]
       human:
         description: GitHub username of human acceptor
-        required: true
+        required: false
+        type: string
+      run_id:
+        description: Existing run ID for resume
+        required: false
         type: string
   repository_dispatch:
     types: [agent-report]
