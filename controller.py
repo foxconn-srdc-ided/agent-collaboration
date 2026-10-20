@@ -16,6 +16,7 @@ ORG = "foxconn-srdc-ided"
 CENTRE = f"{ORG}/agent-collaboration"
 STATE = Path(".state/runs.json")
 ROLE_REPO = {"A": "agent-a", "B": "agent-b", "C": "agent-c"}
+AUTOMATION_LOGIN = "ycliu-dev"
 TASK = "Python 標準函式庫 CSV 統計 CLI；category、amount 欄位；JSON 輸出總筆數、總金額、分類統計；Decimal 金額。A 定義格式、精度、範例、錯誤行為；至少測正常、負金額、只有標頭、缺欄位、空白分類、非法金額。"
 
 
@@ -32,6 +33,8 @@ def gh(*args: str, payload: dict | None = None) -> str:
 
 def dispatch(role: str, action: str, run: Run, stage: str, **extra: object) -> None:
     h = run.handoffs[stage]
+    h.pending_role = role
+    h.pending_action = action
     if stage.startswith("B_C_FIX_"):
         previous = run.handoffs["A_B"]
     elif stage == "C_HUMAN":
@@ -95,7 +98,8 @@ def save(runs: dict[str, Run]) -> None:
     if result.returncode:
         subprocess.run(["git", "-C", ".state", "-c", "user.name=agent-flow[bot]",
                         "-c", "user.email=agent-flow@users.noreply.github.com", "commit", "-m", "Update PoC state"], check=True)
-        subprocess.run(["git", "-C", ".state", "push", "origin", "HEAD:poc-state"], check=True)
+        subprocess.run(["git", "-C", ".state", "-c", "credential.helper=!gh auth git-credential",
+                        "push", "origin", "HEAD:poc-state"], check=True)
 
 
 def issue_from_event(event: dict) -> int:
@@ -149,18 +153,24 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
         return
 
     if event_name == "repository_dispatch":
-        if event.get("action") != "agent-report" or event.get("sender", {}).get("type") != "Bot":
-            raise FlowError("拒絕非 App 的派工回報")
+        if event.get("action") != "agent-report" or event.get("sender", {}).get("login") != AUTOMATION_LOGIN:
+            raise FlowError("拒絕非授權帳號的派工回報")
         p = event["client_payload"]
         run = runs[p["run_id"]]
         stage = p["stage"]
         h = run.current(stage)
         role = p["role"]
-        if p.get("repo") != ROLE_REPO.get(role) or not run.event(f"{role}:{p['report_id']}"):
+        action = p["action"]
+        expected_action = p.get("failed_action") if action in {"failed", "selfcheck_failed", "upstream_defect"} else action
+        if p.get("repo") != ROLE_REPO.get(role):
+            raise FlowError("派工來源 repo 不符")
+        if h.pending_role != role or h.pending_action != expected_action:
+            raise FlowError("回報與待處理派工不符")
+        if not run.event(f"{role}:{p['report_id']}"):
             return
         if p.get("version") != h.agreement_version or p.get("attempt") != h.attempt:
             raise FlowError("過期 Agent 回報")
-        action = p["action"]
+        h.pending_role = h.pending_action = ""
         if action == "propose":
             run.propose(stage, p["text"], role)
             create_card(run, stage, p["text"])

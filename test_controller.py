@@ -66,7 +66,9 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(self.run.stage, "A_B")
 
     def test_model_failure_before_card_records_block(self):
-        event = {"action": "agent-report", "sender": {"type": "Bot"},
+        self.run.handoffs["A_B"].pending_role = "A"
+        self.run.handoffs["A_B"].pending_action = "propose"
+        event = {"action": "agent-report", "sender": {"login": "ycliu-dev"},
                  "client_payload": {"run_id": "run-1", "stage": "A_B", "role": "A",
                                     "repo": "agent-a", "report_id": "r1", "version": 1,
                                     "attempt": 0, "action": "failed", "failed_action": "propose",
@@ -75,6 +77,19 @@ class ControllerTests(unittest.TestCase):
             controller.handle(self.runs, event, "repository_dispatch")
         self.assertIn("API unavailable", self.run.stopped)
         self.assertEqual(self.run.handoffs["A_B"].blocked_action, "propose")
+
+    def test_report_rejects_wrong_sender_or_pending_action(self):
+        h = self.run.handoffs["A_B"]
+        h.pending_role, h.pending_action = "A", "propose"
+        payload = {"run_id": "run-1", "stage": "A_B", "role": "A", "repo": "agent-a",
+                   "report_id": "r1", "version": 1, "attempt": 0, "action": "agree", "agree": True}
+        with self.assertRaisesRegex(Exception, "授權帳號"):
+            controller.handle(self.runs, {"action": "agent-report", "sender": {"login": "intruder"},
+                                          "client_payload": payload}, "repository_dispatch")
+        with self.assertRaisesRegex(Exception, "待處理派工"):
+            controller.handle(self.runs, {"action": "agent-report", "sender": {"login": "ycliu-dev"},
+                                          "client_payload": payload}, "repository_dispatch")
+        self.assertEqual(self.run.seen, [])
 
     def test_complete_three_handoffs_routes_to_done(self):
         issue_no = 0
@@ -97,11 +112,12 @@ class ControllerTests(unittest.TestCase):
             nonlocal report_id
             report_id += 1
             h = self.run.handoffs[stage]
+            h.pending_role, h.pending_action = role, action
             payload = {"run_id": self.run.run_id, "stage": stage, "role": role,
                        "repo": controller.ROLE_REPO[role], "report_id": str(report_id),
                        "version": h.agreement_version, "attempt": h.attempt,
                        "action": action, **fields}
-            controller.handle(self.runs, {"action": "agent-report", "sender": {"type": "Bot"},
+            controller.handle(self.runs, {"action": "agent-report", "sender": {"login": "ycliu-dev"},
                                           "client_payload": payload}, "repository_dispatch")
 
         def close(stage):

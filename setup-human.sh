@@ -184,37 +184,9 @@ finish() {
 # Replace the example below. Set TOTAL_STAGES to match the stages you write.
 # ──────────────────────────────────────────────────────────────────────────
 
-TOTAL_STAGES=4
+TOTAL_STAGES=1
 
 banner "Agent handoff PoC: human setup"
-
-stage "Create a dedicated organization GitHub App"
-open_url "https://github.com/organizations/foxconn-srdc-ided/settings/apps/new"
-step "Create a private App named agent-handoff-poc (or a unique variant)."
-step "Set Homepage URL to https://github.com/foxconn-srdc-ided/agent-collaboration."
-step "Disable Webhook; set repository permissions Contents: Read & write, Issues: Read & write."
-step "Choose 'Only on this account', create App, then copy Client ID from its settings page."
-ask APP_CLIENT_ID "App Client ID:"
-[[ -n "$APP_CLIENT_ID" ]] || { warn "Client ID required"; exit 1; }
-pause "App created? Press Enter to continue."
-
-stage "Install App on four repos"
-open_url "https://github.com/organizations/foxconn-srdc-ided/settings/apps"
-step "Open your new App, choose Install App, then Install for foxconn-srdc-ided."
-step "Choose Only select repositories: agent-a, agent-b, agent-c, agent-collaboration."
-pause "Installation complete? Press Enter to continue."
-
-stage "Generate private key and configure GitHub"
-open_url "https://github.com/organizations/foxconn-srdc-ided/settings/apps"
-step "Open the App → Credentials → Key pairs → New key; keep the downloaded PEM file private."
-ask APP_KEY_PATH "Absolute path to downloaded PEM file:"
-[[ -f "$APP_KEY_PATH" ]] || { warn "PEM file not found"; exit 1; }
-for repo in agent-a agent-b agent-c agent-collaboration; do
-  GH_REPO="foxconn-srdc-ided/$repo" set_var APP_CLIENT_ID "$APP_CLIENT_ID"
-  GH_REPO="foxconn-srdc-ided/$repo" set_secret APP_PRIVATE_KEY "$(cat "$APP_KEY_PATH")"
-done
-step "After verifying the secrets, move or delete the downloaded PEM from shared folders."
-pause "Continue to Model Studio settings?"
 
 stage "Configure Singapore Model Studio"
 open_url "https://bailian.console.alibabacloud.com/"
@@ -228,7 +200,5 @@ for repo in agent-a agent-b agent-c; do
   GH_REPO="foxconn-srdc-ided/$repo" set_var MODEL_STUDIO_BASE_URL "$MODEL_STUDIO_BASE_URL"
   GH_REPO="foxconn-srdc-ided/$repo" set_secret MODEL_STUDIO_API_KEY "$MODEL_STUDIO_API_KEY"
 done
-
-finish
 
 finish

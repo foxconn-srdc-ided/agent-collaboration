@@ -35,6 +35,8 @@ class Handoff:
     review: str = ""
     blocked_action: str = ""
     blocked_role: str = ""
+    pending_role: str = ""
+    pending_action: str = ""
 
 
 @dataclass
