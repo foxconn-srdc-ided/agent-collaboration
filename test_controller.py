@@ -39,15 +39,31 @@ class ControllerTests(unittest.TestCase):
         self.run.agree("A_B", "B", 1)
         self.run.submit("A_B", "A", SHA, 1, "self-check")
         self.run.review_result("A_B", "B", SHA, 1, True, "checked")
+        self.run.handoffs["A_B"].passed_at = "2026-10-20T00:00:00+00:00"
         event = {"action": "closed", "issue": {"number": 1, "state_reason": "completed"},
                  "sender": {"login": "reviewer"}}
-        comments = json.dumps([{"user": {"login": "reviewer"}, "body": f"/accept {SHA} complete"}])
+        comments = json.dumps([[{"user": {"login": "reviewer"}, "body": f"/accept {SHA} complete",
+                                 "created_at": "2026-10-20T00:01:00Z"}]])
         with patch.object(controller, "gh", return_value=comments), \
              patch.object(controller, "dispatch") as dispatch, \
              patch.object(controller, "label"):
             controller.handle(self.runs, event, "issues")
             dispatch.assert_called_once()
         self.assertEqual(self.run.stage, "B_C")
+
+    def test_old_accept_comment_does_not_approve_new_check(self):
+        self.run.set_issue("A_B", 1)
+        self.run.handoffs["A_B"].status = "待人工驗收"
+        self.run.handoffs["A_B"].passed_sha = SHA
+        self.run.handoffs["A_B"].passed_at = "2026-10-20T00:02:00+00:00"
+        comments = json.dumps([[{"user": {"login": "reviewer"}, "body": f"/accept {SHA} old",
+                                 "created_at": "2026-10-20T00:01:00Z"}]])
+        event = {"action": "closed", "issue": {"number": 1, "state_reason": "completed"},
+                 "sender": {"login": "reviewer"}}
+        with patch.object(controller, "gh", return_value=comments) as gh:
+            controller.handle(self.runs, event, "issues")
+            self.assertTrue(any(call.args[:2] == ("issue", "reopen") for call in gh.call_args_list))
+        self.assertEqual(self.run.stage, "A_B")
 
     def test_model_failure_before_card_records_block(self):
         event = {"action": "agent-report", "sender": {"type": "Bot"},
@@ -71,7 +87,8 @@ class ControllerTests(unittest.TestCase):
                 return f"https://github.com/foxconn-srdc-ided/agent-collaboration/issues/{issue_no}"
             if args[:1] == ("api",) and args[1].endswith("/comments"):
                 number = int(args[1].split("/")[-2])
-                return json.dumps([{"user": {"login": "reviewer"}, "body": approvals[number]}])
+                return json.dumps([[{"user": {"login": "reviewer"}, "body": approvals[number],
+                                     "created_at": "9999-01-01T00:00:00Z"}]])
             return "{}"
 
         report_id = 0

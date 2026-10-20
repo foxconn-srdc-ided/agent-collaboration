@@ -30,6 +30,7 @@ class Handoff:
     agreed: list[str] = field(default_factory=list)
     sha: str = ""
     passed_sha: str = ""
+    passed_at: str = ""
     attempt: int = 0
     review: str = ""
     blocked_action: str = ""
@@ -98,6 +99,7 @@ class Run:
         h.agreement = text
         h.agreed = []
         h.passed_sha = ""
+        h.passed_at = ""
         h.review = ""
         h.status = "協議中"
 
@@ -125,6 +127,7 @@ class Run:
             raise FlowError("缺少自檢證據")
         h.sha = sha
         h.passed_sha = ""
+        h.passed_at = ""
         h.review = ""
         h.status = "待檢查"
 
@@ -150,6 +153,7 @@ class Run:
             raise FlowError("退件需要理由")
         self.fixes[actor] += 1
         h.passed_sha = ""
+        h.passed_at = ""
         if self.fixes[actor] > 2:
             h.status = "阻塞"
             self.stopped = f"{actor} 修正額度耗盡"
@@ -170,6 +174,7 @@ class Run:
             retest.status = "執行中"
             retest.attempt += 1
             retest.sha = retest.passed_sha = ""
+            retest.passed_at = ""
         else:
             index = STAGES.index(stage)
             self.stage = STAGES[index + 1] if index + 1 < len(STAGES) else "DONE"

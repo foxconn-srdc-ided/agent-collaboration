@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 
 from flow import FlowError, Run, STAGES, parties
 
@@ -194,6 +195,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             gh("api", f"repos/{ORG}/{ROLE_REPO[role]}/git/commits/{p['sha']}")
             if stage == "C_HUMAN":
                 run.submit_final(p["sha"], p["attempt"], p["text"])
+                h.passed_at = datetime.now(timezone.utc).isoformat()
             else:
                 run.submit(stage, role, p["sha"], p["attempt"], p["text"])
             link = f"https://github.com/{ORG}/{ROLE_REPO[role]}/commit/{p['sha']}"
@@ -203,6 +205,8 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
                 dispatch(parties(stage)[1], "review", run, stage, source_repo=ROLE_REPO[role])
         elif action == "review":
             run.review_result(stage, role, p["sha"], p["attempt"], p["passed"], p["text"])
+            if p["passed"]:
+                h.passed_at = datetime.now(timezone.utc).isoformat()
             comment(h.issue, f"{role} 檢查協議 v{h.agreement_version}、SHA `{p['sha']}`："
                   f"{'通過' if p['passed'] else '退回'}\n\n{p['text']}")
             label(h.issue, h.status)
@@ -264,7 +268,10 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             run.stopped = ""
             comment(issue, f"人工裁決為協議 v{h.agreement_version}，雙方仍須同意：\n{h.agreement}")
             label(issue, h.status)
-            dispatch(parties(stage)[1], "agree", run, stage)
+            if stage == "C_HUMAN":
+                comment(issue, f"請 @{run.human} 留言 `/agree v{h.agreement_version}` 確認裁決後範圍。")
+            else:
+                dispatch(parties(stage)[1], "agree", run, stage)
             return
         if body == "/resume" and run.stopped and h.blocked_action:
             action, role = h.blocked_action, h.blocked_role
@@ -279,6 +286,7 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
         if body.startswith("/amend ") and h.agreement and h.amendments < 2:
             h.status = "協議中"
             h.passed_sha = ""
+            h.passed_at = ""
             label(issue, h.status)
             dispatch(parties(stage)[0], "amend", run, stage, feedback=body[7:])
             return
@@ -301,12 +309,17 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             run, stage = find_run(runs, issue)
         except FlowError:
             return
+        if run.stage != stage:
+            return
         h = run.current(stage)
         actor = event["sender"]["login"]
         reason = event["issue"].get("state_reason")
-        comments = json.loads(gh("api", f"repos/{CENTRE}/issues/{issue}/comments", "--paginate"))
+        pages = json.loads(gh("api", f"repos/{CENTRE}/issues/{issue}/comments", "--paginate", "--slurp"))
+        comments = [item for page in pages for item in page]
+        passed_at = datetime.fromisoformat(h.passed_at.replace("Z", "+00:00")) if h.passed_at else None
         approvals = [c["body"] for c in comments if c["user"]["login"] == run.human
-                     and c["body"].startswith(f"/accept {h.passed_sha} ")]
+                     and c["body"].startswith(f"/accept {h.passed_sha} ")
+                     and passed_at and datetime.fromisoformat(c["created_at"].replace("Z", "+00:00")) >= passed_at]
         if actor != run.human or reason != "completed" or not approvals:
             gh("issue", "reopen", str(issue), "-R", CENTRE)
             comment(issue, "關卡未符合准收條件：指定人工、completed、最新版通過及 `/accept <SHA> <理由>` 均必需。")
