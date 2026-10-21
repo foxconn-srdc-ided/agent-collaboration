@@ -1,0 +1,9 @@
+[submodule "agent-a"]
+	path = agent-a
+	url = https://github.com/foxconn-srdc-ided/agent-a.git
+[submodule "agent-b"]
+	path = agent-b
+	url = https://github.com/foxconn-srdc-ided/agent-b.git
+[submodule "agent-c"]
+	path = agent-c
+	url = https://github.com/foxconn-srdc-ided/agent-c.git

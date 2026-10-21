@@ -18,6 +18,8 @@ C 的獨立測試若判定為 B 缺陷，控制腳本會保留原 B → C 准收
 
 Agent/API 失敗或修正額度耗盡會停在阻塞；不得用新 run 重置同一任務。人工裁決或恢復尚需按該卡紀錄處理。整輪完成才更新 submodule 固定版本。
 
+已完成的示範 run 為 `run-39399553395`，交付卡依序為 [#6](https://github.com/foxconn-srdc-ided/agent-collaboration/issues/6)、[#7](https://github.com/foxconn-srdc-ided/agent-collaboration/issues/7)、[#8](https://github.com/foxconn-srdc-ided/agent-collaboration/issues/8)。三個 submodule 分別鎖定經人工准收的 A `6c501ce430286a48d1df70a561a22b6faa268230`、B `247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88`、C `caa1877422e2ffe1918b721e28f65fa2eb085db5`。取得成果可使用 `git clone --recurse-submodules`，既有 checkout 可執行 `git submodule update --init --recursive`。
+
 ## 設定
 
 四個 repo 共用僅授予這四個 repo 的組織 Secret `CROSS_REPO_TOKEN`，其值是 `ycliu-dev` 的 GitHub 個人 token；若組織政策不允許，改設同名 repo Secret。角色 repo 另設 `MODEL_STUDIO_API_KEY` secret、`MODEL_STUDIO_BASE_URL` variable。模型固定 `qwen3-coder-flash-2025-07-28`，OpenCode 固定 `1.18.34`。未配置完成前 workflow 不會成功。
