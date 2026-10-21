@@ -7,7 +7,7 @@
     },
     "fixes": {
       "A": 3,
-      "B": 5,
+      "B": 4,
       "C": 0
     },
     "handoffs": {
@@ -46,12 +46,12 @@
         "issue": 7,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "",
-        "pending_role": "",
-        "review": "根據提供的SPEC.md內容，需要審查的文件包括csv_stats.py、test_csv_stats.py和README.md。然而，在工作目錄中未找到這些文件。因此無法進行完整的功能與規格審查。建議確認是否已正確提供相關檔案。\n固定測試 exit=0:\ntest_empty_category (test_csv_stats.TestCsvStats.test_empty_category) ... ok\ntest_invalid_amount (test_csv_stats.TestCsvStats.test_invalid_amount) ... ok\ntest_missing_field (test_csv_stats.TestCsvStats.test_missing_field) ... ok\ntest_negative_amount (test_csv_stats.TestCsvStats.test_negative_amount) ... ok\ntest_normal_case (test_csv_stats.TestCsvStats.test_normal_case) ... ok\ntest_only_header (test_csv_stats.TestCsvStats.test_only_header) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.156s\n\nOK\n",
+        "pending_action": "review",
+        "pending_role": "C",
+        "review": "",
         "sha": "247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88",
         "stage": "B_C",
-        "status": "阻塞"
+        "status": "待檢查"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -121,6 +121,6 @@
       "C:d69ec45a-6598-433f-a785-5f61c9b01cd9"
     ],
     "stage": "B_C",
-    "stopped": "B 修正額度耗盡"
+    "stopped": ""
   }
 }
