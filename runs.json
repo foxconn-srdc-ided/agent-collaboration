@@ -55,23 +55,24 @@
       },
       "C_HUMAN": {
         "agreed": [
-          "HUMAN"
+          "HUMAN",
+          "C"
         ],
         "agreement": "交付範圍：根據前一棒 B 的固定 SHA 247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88，獨立交付 test_acceptance.py 與 REPORT.md，驗證 CLI 工具在六種特定案例下的行為，包括正常、負金額、只有標頭、缺欄位、空白分類、非法金額。驗收條件：1) test_acceptance.py 能正確執行並覆蓋上述六種測試案例；2) 執行結果符合預期，錯誤處理正確；3) 重跑 B 的測試（test_csv_stats.py）保持通過；4) 所有測試案例均明確記錄執行命令、輸出結果與需求覆蓋情況；5) 若出現失敗，需明確指出是 B 的缺陷還是 C 的測試錯誤。依據資料：README.md、csv_stats.py（SHA 247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88）、test_csv_stats.py。",
         "agreement_version": 2,
         "amendments": 1,
-        "attempt": 0,
+        "attempt": 1,
         "blocked_action": "",
         "blocked_role": "",
         "issue": 8,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "agree",
+        "pending_action": "produce",
         "pending_role": "C",
         "review": "",
         "sha": "",
         "stage": "C_HUMAN",
-        "status": "協議中"
+        "status": "執行中"
       }
     },
     "human": "ycliu-dev",
@@ -122,7 +123,8 @@
       "B:2404d672-01e8-401b-8170-00f59c141725",
       "C:d69ec45a-6598-433f-a785-5f61c9b01cd9",
       "C:0d2a5cd2-2bbd-44cf-a092-ce3a80652dd7",
-      "C:6cc4e4ef-6293-49a8-9d04-0f48ffbc1793"
+      "C:6cc4e4ef-6293-49a8-9d04-0f48ffbc1793",
+      "C:c08a9f78-9e76-408e-8386-d8a186660565"
     ],
     "stage": "C_HUMAN",
     "stopped": ""
