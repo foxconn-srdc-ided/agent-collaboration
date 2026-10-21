@@ -326,7 +326,10 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             run.propose(stage, p["text"], role, amendment=True)
             comment(h.issue, f"協議 v{h.agreement_version} 改約提案：\n{h.agreement}")
             label(h.issue, h.status)
-            dispatch(parties(stage)[1], "agree", run, stage)
+            if stage == "C_HUMAN":
+                comment(h.issue, f"請指定人工驗收者 @{run.human} 留言 `/agree v{h.agreement_version}` 同意測試範圍。")
+            else:
+                dispatch(parties(stage)[1], "agree", run, stage)
         elif action == "produce":
             gh("api", f"repos/{ORG}/{ROLE_REPO[role]}/git/commits/{p['sha']}")
             if stage == "C_HUMAN":

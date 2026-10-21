@@ -159,6 +159,26 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(h.status, "待檢查")
         self.assertFalse(self.run.stopped)
 
+    def test_final_amendment_waits_for_human_agreement(self):
+        self.run.stage = "C_HUMAN"
+        h = self.run.handoffs["C_HUMAN"]
+        h.issue = 8
+        h.agreement = "old agreement"
+        h.pending_role = "C"
+        h.pending_action = "amend"
+        event = {"action": "agent-report", "sender": {"login": "ycliu-dev"},
+                 "client_payload": {"report": {"run_id": "run-1", "stage": "C_HUMAN", "role": "C",
+                             "repo": "agent-c", "report_id": "r-final-amend", "version": 1,
+                             "attempt": 0, "action": "amend", "text": "new agreement"}}}
+        with patch.object(controller, "comment") as comment, \
+             patch.object(controller, "label"), patch.object(controller, "dispatch") as dispatch:
+            controller.handle(self.runs, event, "repository_dispatch")
+        self.assertEqual(h.agreement_version, 2)
+        self.assertEqual(h.agreement, "new agreement")
+        self.assertFalse(h.pending_action)
+        self.assertIn("/agree v2", comment.call_args_list[-1].args[1])
+        dispatch.assert_not_called()
+
     def test_dispatch_payload_has_one_top_level_property(self):
         with patch.object(controller, "gh") as gh:
             controller.dispatch("A", "propose", self.run, "A_B")
