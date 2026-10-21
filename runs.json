@@ -44,14 +44,14 @@
         "blocked_action": "",
         "blocked_role": "",
         "issue": 7,
-        "passed_at": "",
-        "passed_sha": "",
-        "pending_action": "review",
-        "pending_role": "C",
-        "review": "",
+        "passed_at": "2026-10-21T00:56:56.836601+00:00",
+        "passed_sha": "247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88",
+        "pending_action": "",
+        "pending_role": "",
+        "review": "### 審查結果\n\n#### 協議 v4 實作符合度\n\n1. **交付範圍符合**：\n   - 提供了 `csv_stats.py`、`test_csv_stats.py`、`README.md` 三個檔案。\n   - 僅使用 Python 標準函式庫（csv, decimal, json, sys, argparse）。\n   - 符合 SHA 6c501ce430286a48d1df70a561a22b6faa268230 的 SPEC.md 規格。\n\n2. **功能實現正確性**：\n   - CLI 正確讀取 CSV 檔案，並驗證 `category` 和 `amount` 欄位存在。\n   - 使用 `decimal.Decimal` 處理金額，確保精確度。\n   - 輸出 JSON 格式，包含 `total_count`、`total_amount`、`category_stats`。\n   - 所有金額以字串形式輸出，保留兩位小數。\n   - 空白分類自動轉為 `'UNKNOWN'`。\n   - 負金額正確計算並參與總和。\n   - 只有標頭時輸出預期的空結果：`{\"total_count\":0,\"total_amount\":\"0.00\",\"category_stats\":{}}`。\n\n3. **錯誤處理正確性**：\n   - 缺少欄位時，輸出錯誤訊息至 stderr，退出碼為 1。\n   - 非法金額格式時，輸出錯誤訊息至 stderr，退出碼為 1。\n\n4. **測試覆蓋完整**：\n   - `test_csv_stats.py` 包含六種情境測試：正常案例、負金額、僅標頭、缺欄位、空白分類、非法金額。\n   - 所有測試均能通過，驗證程式邏輯正確。\n\n5. **文件完整性**：\n   - `README.md` 清楚說明功能、使用方式、特殊處理與錯誤處理方式。\n   - 文件與程式碼一致，無矛盾。\n\n### 結論\n\n所有要求均已滿足，成果符合協議 v4 規格，通過審查。\n固定測試 exit=0:\ntest_empty_category (test_csv_stats.TestCsvStats.test_empty_category) ... ok\ntest_invalid_amount (test_csv_stats.TestCsvStats.test_invalid_amount) ... ok\ntest_missing_field (test_csv_stats.TestCsvStats.test_missing_field) ... ok\ntest_negative_amount (test_csv_stats.TestCsvStats.test_negative_amount) ... ok\ntest_normal_case (test_csv_stats.TestCsvStats.test_normal_case) ... ok\ntest_only_header (test_csv_stats.TestCsvStats.test_only_header) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.173s\n\nOK\n",
         "sha": "247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88",
         "stage": "B_C",
-        "status": "待檢查"
+        "status": "待人工驗收"
       },
       "C_HUMAN": {
         "agreed": [],
@@ -118,7 +118,8 @@
       "C:5cde84f8-384d-428e-8f0f-2259bca10bc4",
       "B:39e5850c-1d0e-4c05-a42e-bda46e9638e3",
       "B:2404d672-01e8-401b-8170-00f59c141725",
-      "C:d69ec45a-6598-433f-a785-5f61c9b01cd9"
+      "C:d69ec45a-6598-433f-a785-5f61c9b01cd9",
+      "C:0d2a5cd2-2bbd-44cf-a092-ce3a80652dd7"
     ],
     "stage": "B_C",
     "stopped": ""
