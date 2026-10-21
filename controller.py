@@ -165,6 +165,24 @@ def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
             label(h.issue, h.status)
             dispatch("C", "review", run, "B_C", source_repo="agent-b")
             return
+        if inputs.get("mode") == "recheck_b_missing_files":
+            run = runs[inputs["run_id"]]
+            h = run.handoffs["B_C"]
+            if (event["sender"]["login"] != run.human or run.stage != "B_C" or
+                    run.stopped != "B 修正額度耗盡" or h.status != "阻塞" or
+                    h.sha != "247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88" or
+                    h.attempt != 5 or run.fixes["B"] != 5 or run.extra_fixes["B"] != 2 or
+                    "未找到這些文件" not in h.review or "固定測試 exit=0" not in h.review or
+                    h.pending_action or h.pending_role):
+                raise FlowError("只可重驗本次 C 誤判檔案缺失的 B 固定 SHA")
+            run.fixes["B"] -= 1
+            run.stopped = ""
+            h.review = ""
+            h.status = "待檢查"
+            comment(h.issue, "C 前次審查誤稱固定 SHA 檔案未提供，但其紀錄顯示六項固定測試通過；撤銷該次退件及誤扣的修正額度，對同一 SHA 重審。")
+            label(h.issue, h.status)
+            dispatch("C", "review", run, "B_C", source_repo="agent-b")
+            return
         if inputs.get("mode") == "retry_arbitration_agree":
             run = runs[inputs["run_id"]]
             h = run.handoffs["B_C"]

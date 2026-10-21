@@ -136,6 +136,29 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(h.status, "待檢查")
         self.assertFalse(h.passed_sha)
 
+    def test_rechecks_false_missing_files_without_charging_b(self):
+        self.run.stage = "B_C"
+        h = self.run.handoffs["B_C"]
+        h.issue = 7
+        h.status = "阻塞"
+        h.sha = "247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88"
+        h.attempt = 5
+        h.review = "未找到這些文件。\n固定測試 exit=0:\nRan 6 tests"
+        self.run.stopped = "B 修正額度耗盡"
+        self.run.fixes["B"] = 5
+        self.run.extra_fixes["B"] = 2
+        event = {"inputs": {"mode": "recheck_b_missing_files", "run_id": "run-1"},
+                 "sender": {"login": "reviewer"}}
+        with patch.object(controller, "comment"), patch.object(controller, "label"), \
+             patch.object(controller, "dispatch") as dispatch:
+            controller.handle(self.runs, event, "workflow_dispatch")
+            dispatch.assert_called_once_with("C", "review", self.run, "B_C", source_repo="agent-b")
+            with self.assertRaisesRegex(Exception, "只可重驗"):
+                controller.handle(self.runs, event, "workflow_dispatch")
+        self.assertEqual(self.run.fixes["B"], 4)
+        self.assertEqual(h.status, "待檢查")
+        self.assertFalse(self.run.stopped)
+
     def test_dispatch_payload_has_one_top_level_property(self):
         with patch.object(controller, "gh") as gh:
             controller.dispatch("A", "propose", self.run, "A_B")
