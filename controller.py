@@ -125,6 +125,28 @@ def next_stage(run: Run, stage: str) -> None:
 def handle(runs: dict[str, Run], event: dict, event_name: str) -> None:
     if event_name == "workflow_dispatch":
         inputs = event.get("inputs", {})
+        if inputs.get("mode") == "recover_c_amend":
+            run = runs[inputs["run_id"]]
+            h = run.handoffs["C_HUMAN"]
+            if (event["sender"]["login"] != run.human or run.stage != "C_HUMAN" or run.stopped or
+                    h.issue != 8 or h.agreement_version != 1 or h.amendments != 0 or
+                    h.pending_role != "C" or h.pending_action != "amend" or h.agreed):
+                raise FlowError("只可恢復本次 C → HUMAN v2 回報")
+            pages = json.loads(gh("api", f"repos/{CENTRE}/issues/{h.issue}/comments", "--paginate", "--slurp"))
+            comments = [item for page in pages for item in page]
+            amendment = next((i for i, c in enumerate(comments) if c["user"]["login"] == run.human and
+                              c["body"].startswith("/amend C 最後一棒不重新實作 CLI")), None)
+            proposal = next((c["body"].split("協議 v2 改約提案：\n", 1)[1]
+                             for c in comments[amendment + 1:] if c["body"].startswith("協議 v2 改約提案：\n")), None) if amendment is not None else None
+            if not proposal or not all(item in proposal for item in
+                                       ("247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88", "test_acceptance.py",
+                                        "REPORT.md", "負金額", "只有標頭", "缺欄位", "空白分類", "非法金額")):
+                raise FlowError("找不到 C 已提出的完整 v2 協議")
+            run.propose("C_HUMAN", proposal, "C", amendment=True)
+            h.pending_role = h.pending_action = ""
+            comment(h.issue, f"C 的 v2 提案已恢復；請指定人工驗收者 @{run.human} 留言 `/agree v2` 同意測試範圍。")
+            label(h.issue, h.status)
+            return
         if inputs.get("mode") == "grant_b_fix":
             run = runs[inputs["run_id"]]
             h = run.handoffs["B_C"]

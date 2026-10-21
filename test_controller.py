@@ -179,6 +179,30 @@ class ControllerTests(unittest.TestCase):
         self.assertIn("/agree v2", comment.call_args_list[-1].args[1])
         dispatch.assert_not_called()
 
+    def test_recovers_final_amendment_from_issue_after_failed_dispatch(self):
+        self.run.stage = "C_HUMAN"
+        h = self.run.handoffs["C_HUMAN"]
+        h.issue = 8
+        h.agreement = "old agreement"
+        h.pending_role = "C"
+        h.pending_action = "amend"
+        proposal = ("固定 SHA 247fcc73c270e4689f57bfb0fc13cd3fc8f9ea88 交付 "
+                    "test_acceptance.py 與 REPORT.md；測正常、負金額、只有標頭、缺欄位、空白分類、非法金額。")
+        comments = json.dumps([[{"user": {"login": "reviewer"},
+                                 "body": "/amend C 最後一棒不重新實作 CLI"},
+                                {"user": {"login": "reviewer"},
+                                 "body": "協議 v2 改約提案：\n" + proposal}]])
+        event = {"inputs": {"mode": "recover_c_amend", "run_id": "run-1"},
+                 "sender": {"login": "reviewer"}}
+        with patch.object(controller, "gh", return_value=comments), \
+             patch.object(controller, "comment"), patch.object(controller, "label"):
+            controller.handle(self.runs, event, "workflow_dispatch")
+            with self.assertRaisesRegex(Exception, "只可恢復"):
+                controller.handle(self.runs, event, "workflow_dispatch")
+        self.assertEqual(h.agreement_version, 2)
+        self.assertEqual(h.agreement, proposal)
+        self.assertFalse(h.pending_action)
+
     def test_dispatch_payload_has_one_top_level_property(self):
         with patch.object(controller, "gh") as gh:
             controller.dispatch("A", "propose", self.run, "A_B")
