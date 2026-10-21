@@ -55,17 +55,17 @@
       },
       "C_HUMAN": {
         "agreed": [],
-        "agreement": "",
+        "agreement": "交付範圍：實現 Python 標準函式庫 CSV 統計 CLI 工具，支援 category 和 amount 欄位，輸出 JSON 格式統計結果。驗收條件：1) 正常案例通過測試（含正負金額、空白分類、缺欄位、非法金額等），2) 統計結果準確，3) 錯誤處理正確。依據資料：README.md、csv_stats.py、test_csv_stats.py。",
         "agreement_version": 1,
         "amendments": 0,
         "attempt": 0,
         "blocked_action": "",
         "blocked_role": "",
-        "issue": null,
+        "issue": 8,
         "passed_at": "",
         "passed_sha": "",
-        "pending_action": "propose",
-        "pending_role": "C",
+        "pending_action": "",
+        "pending_role": "",
         "review": "",
         "sha": "",
         "stage": "C_HUMAN",
@@ -119,7 +119,8 @@
       "B:39e5850c-1d0e-4c05-a42e-bda46e9638e3",
       "B:2404d672-01e8-401b-8170-00f59c141725",
       "C:d69ec45a-6598-433f-a785-5f61c9b01cd9",
-      "C:0d2a5cd2-2bbd-44cf-a092-ce3a80652dd7"
+      "C:0d2a5cd2-2bbd-44cf-a092-ce3a80652dd7",
+      "C:6cc4e4ef-6293-49a8-9d04-0f48ffbc1793"
     ],
     "stage": "C_HUMAN",
     "stopped": ""
