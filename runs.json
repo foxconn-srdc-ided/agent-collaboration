@@ -72,7 +72,7 @@
         "review": "已完成驗證，所有測試案例均正確覆蓋，符合協議要求。\nB tests rerun exit=0:\ntest_empty_category (test_csv_stats.TestCsvStats.test_empty_category) ... ok\ntest_invalid_amount (test_csv_stats.TestCsvStats.test_invalid_amount) ... ok\ntest_missing_field (test_csv_stats.TestCsvStats.test_missing_field) ... ok\ntest_negative_amount (test_csv_stats.TestCsvStats.test_negative_amount) ... ok\ntest_normal_case (test_csv_stats.TestCsvStats.test_normal_case) ... ok\ntest_only_header (test_csv_stats.TestCsvStats.test_only_header) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.148s\n\nOK\n\nC independent tests exit=0:\ntest_empty_category (test_acceptance.TestAcceptance.test_empty_category) ... ok\ntest_invalid_amount (test_acceptance.TestAcceptance.test_invalid_amount) ... ok\ntest_missing_field (test_acceptance.TestAcceptance.test_missing_field) ... ok\ntest_negative_amount (test_acceptance.TestAcceptance.test_negative_amount) ... ok\ntest_normal_case (test_acceptance.TestAcceptance.test_normal_case) ... ok\ntest_only_header (test_acceptance.TestAcceptance.test_only_header) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.148s\n\nOK\n",
         "sha": "caa1877422e2ffe1918b721e28f65fa2eb085db5",
         "stage": "C_HUMAN",
-        "status": "待人工驗收"
+        "status": "已驗收"
       }
     },
     "human": "ycliu-dev",
@@ -127,7 +127,7 @@
       "C:c08a9f78-9e76-408e-8386-d8a186660565",
       "C:9d766443-f9bf-4ff0-ad1d-ad435a1c2de5"
     ],
-    "stage": "C_HUMAN",
+    "stage": "DONE",
     "stopped": ""
   }
 }
